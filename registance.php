@@ -1,15 +1,4 @@
 <?php
-ini_set("display_erors","on");
-ini_set("session.gc_maxlifetime","1800");
-
-
-//ページのキャッシュを無効にする
-
-header('Last-Modified:' . gmdate('D, d M Y H:i:s') . 'GMT');
-header('pragma: no-cache');
-header('Cache-Control: no-cache, must-revalidate');
-header('Expires: Mon,26 Jul 1997 05:00:00 GMT');
-
 //エスケープ関数の作成
 
 function escape_string($target_string,$max_size){

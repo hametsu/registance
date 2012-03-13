@@ -1,5 +1,17 @@
 <?php
+ini_set("display_erors","on");
+ini_set("session.gc_maxlifetime","1800");
+
+
+//ページのキャッシュを無効にする
+
+header('Last-Modified:' . gmdate('D, d M Y H:i:s') . 'GMT');
+header('pragma: no-cache');
+header('Cache-Control: no-cache, must-revalidate');
+header('Expires: Mon,26 Jul 1997 05:00:00 GMT');
+
 require_once './registance.php';
+
 //TODO 状態によって表示を切り替える -> 参加者、ログ
 $room_file = $_GET['file'];
 $room_file = str_replace("/","",$room_file);
