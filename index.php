@@ -1,12 +1,14 @@
 <?php
 ini_set("display_errors","on");
+include_once("eseUtil.php");
 
 //room.datが存在するかを保持する。
 $room_exist = file_exists("./data/room.dat");
 
+
 if ($room_exist){
 
-	$room_file = file("./data/room.dat");
+	$room_file = eseFile("./data/room.dat");
 
 	$waiting_room = array();
 	$prosessing_room = array();
