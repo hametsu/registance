@@ -1,1 +1,8 @@
 DirectoryIndex index.php
+
+<Files dat>
+order deny,allow
+deny from all
+</Files>
+
+
