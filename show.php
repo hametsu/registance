@@ -513,7 +513,7 @@ function set_state($room_inform,$set_state,$reflash_room_list){
         $user_9 = array(3,4,4,5,5);
         $user_10 = array(3,4,4,5,5);
         $get_select_member = array($user_5,$user_6,$user_7,$user_8,$user_9,$user_10);
-        return ($user_count > 4) ? $get_select_member[$user_count][$mission] : 1 ;
+        return ($user_count > 4) ? $get_select_member[$user_count - 5][$mission - 1] : 1 ;
     }
 
     //------------------------------
