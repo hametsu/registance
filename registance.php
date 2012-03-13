@@ -58,7 +58,7 @@ function init_room_data($room_data){
 		"scene" => trim($room_data[5]),
 		"mission" => (int) trim($room_data[6]),
 		"now_leader" => trim($room_data[7]),
-		"not_leader" => explode(",",$room_data[8]),
+		"not_leader" => explode(",",trim($room_data[8])),
 		"team_member" => explode(",",trim($room_data[9])),
 		"vote_user"  => array(),
 		"vote_counter" => trim($room_data[11]),
