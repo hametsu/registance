@@ -231,11 +231,11 @@ $is_your_spy = FALSE;
 $is_spy = array();
 if ($room_info['states'] === "prosessing" or $room_info['states'] === "end"){
 	foreach($room_info['users'] as $set_key_user ){
-		$is_spy["$set_key_user"] = FALSE;
+		$is_spy[$set_key_user] = FALSE;
 	}
 
 	foreach($room_info['userrole'] as $set_key_user ){
-		$is_spy["$set_key_user"] = TRUE;
+		$is_spy[$set_key_user] = TRUE;
 	}
 
 	if($is_spy[$_SESSION["name" . $room_info['file']]]) {
@@ -247,11 +247,11 @@ if ($room_info['states'] === "prosessing" or $room_info['states'] === "end"){
 $is_team = array();
 if ($room_info['states'] === "prosessing"){
 	foreach($room_info['users'] as $set_key_user){
-		$is_team["$set_key_user"] = FALSE;
+		$is_team[$set_key_user] = FALSE;
 	}
 
 	foreach($room_info['team_member'] as $set_key_user){
-		$is_team["$set_key_user"] = TRUE;
+		$is_team[$set_key_user] = TRUE;
 	}
 }
 
@@ -260,7 +260,7 @@ if ($room_info['states'] === "prosessing"){
 $is_vote = array();
 if ($room_info['scene'] === "vote"){
 	foreach($room_info['users'] as $set_key_user){
-		$is_vote["$set_key_user"] = FALSE;
+		$is_vote[$set_key_user] = FALSE;
 	}
 
 	foreach($room_info['vote_user'] as $set_key_user){
@@ -272,11 +272,11 @@ if ($room_info['scene'] === "vote"){
 $is_mission = array();
 if ($room_info['scene'] === "mission"){
 	foreach($room_info['team_member'] as $set_key_user){
-		$is_mission["$set_key_user"] = FALSE;   
+		$is_mission[$set_key_user] = FALSE;   
 	}
 
 	foreach($room_info['mission_user'] as $set_key_user){
-		$is_mission["$set_key_user"] = TRUE;
+		$is_mission[$set_key_user] = TRUE;
 	}
 }
 
