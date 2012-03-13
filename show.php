@@ -26,8 +26,8 @@ function escape_string($target_string,$max_size){
 function set_state($room_inform,$set_state,$reflash_room_list){
 	//Room listの更新
 	if($reflash_room_list){
-		$room_list = file("./room.dat");
-		$file_access = fopen("./room.dat" , "w");
+		$room_list = file("./data/room.dat");
+		$file_access = fopen("./data/room.dat" , "w");
 		foreach($room_list as $line){
 			$line_array = explode(",",$line);
 			if($room_inform['file'] === $line_array[0]){
@@ -38,9 +38,9 @@ function set_state($room_inform,$set_state,$reflash_room_list){
 		fclose($file_access);
 	}
 	//自分のファイルを更新
-	$room_data    = file("./dat/" . $room_inform['file']);
+	$room_data    = file("./data/" . $room_inform['file']);
 	$room_data[2] = $set_state;
-	$file_access = fopen("./dat/" . $room_inform['file']);
+	$file_access = fopen("./data/" . $room_inform['file']);
 	foreach($room_data as $line){
 		fwrite($file_access,$line);
 	}
@@ -53,11 +53,11 @@ function set_state($room_inform,$set_state,$reflash_room_list){
 $room_file = $_GET['file'];
 $room_file = str_replace("/","",$room_file);
 
-if (!file_exists("dat/$room_file") && !isset($_GET['file'])){
+if (!file_exists("data/$room_file") && !isset($_GET['file'])){
 	die("そのようなファイルは存在しません");
 }
 
-$room_data = file("dat/$room_file");
+$room_data = file("data/$room_file");
 
 //room_info配列を初期化する
 function init_room_data($room_data){
@@ -113,7 +113,7 @@ if(!isset($_SESSION[$room_file]) && $room_info['states'] === "waiting"){
 		$_SESSION[$room_file] = TRUE;
 		array_unshift($room_info['users'],$_POST['name']);
 		//ログに参加者として保存            
-		$file_access = fopen("./dat/" . $room_file,"w");
+		$file_access = fopen("./data/" . $room_file,"w");
 		if(trim($room_data[2]) === ""){
 			$room_data[2] = $_POST['name'] . "\n";
 		} else {
@@ -179,7 +179,7 @@ if (($room_info['states'] === "waiting")  && (count($room_info['users']) >= $roo
 }
 
 function save_room_info($room_info,$room_log){
-	$file_access = fopen("./dat/" . $room_info['file'],"w");
+	$file_access = fopen("./data/" . $room_info['file'],"w");
 
 	fwrite($file_access,$room_info['name'] .     "\n");//[0] 部屋の名前 
 	fwrite($file_access,$room_info['states'] .   "\n"); //[1] 部屋の状態    
@@ -292,7 +292,7 @@ if ($room_info['states'] === "prosessing" && isset($_POST['command'])){
 				$save_data = "system,warning,red," . $_SESSION["name$room_file"] . "さんは、【" . implode("、",$_POST['select_user']) . "】を、チームとして選びました。\n";
 				array_splice($room_data,16,0,$save_data);    
 
-				$file_access = fopen("./dat/" . $room_file,"w");
+				$file_access = fopen("./data/" . $room_file,"w");
 				$room_data[9] = implode(",",$_POST['select_user']) . "\n";
 				foreach($_POST['select_user'] as $set_user){
 					$is_team[$set_user] = TRUE;
@@ -310,7 +310,7 @@ if ($room_info['states'] === "prosessing" && isset($_POST['command'])){
 			&& $is_your_connection){
 				if(!$is_vote['name' . $room_info['file']]){
 					$is_vote[$_SESSION['name' . $room_info['file']]] = TRUE;
-					$file_access = fopen("./dat/" . $room_info['file'],"w");
+					$file_access = fopen("./data/" . $room_info['file'],"w");
 					$set_vote_user = array($_SESSION["name" . $room_info['file']] , $_POST['vote']);
 					array_unshift($room_info['vote_user'],$set_vote_user);
 					$join_double_array = "";
@@ -339,7 +339,7 @@ if ($room_info['states'] === "prosessing" && isset($_POST['command'])){
 				array_unshift($room_info['mission_vote'],$_POST['vote']);
 				$room_data[12] = implode(",",$room_info['mission_user']) . "\n";
 				$room_data[13] = implode(",",$room_info['mission_vote']) . "\n";
-				$file_access = fopen("./dat/" . $room_info['file'],"w");
+				$file_access = fopen("./data/" . $room_info['file'],"w");
 				foreach($room_data as $lines){
 					fwrite($file_access,$lines);
 				}
@@ -389,7 +389,7 @@ if($room_info['scene'] === "vote"){
 
 		}
 
-		$file_access = fopen("./dat/" . $room_info['file'],"w");
+		$file_access = fopen("./data/" . $room_info['file'],"w");
 		foreach($room_data as $lines){
 			fwrite($file_access,$lines);
 		}
@@ -490,7 +490,7 @@ if ($count_success >= 3 || $count_not_success >= 3){
 		$save_data = "system,warning,red,やりましたね！無事、レジスタンスを妨害し、【スパイ側の勝利】です。\n";
 	}
 
-	$file_access = fopen("./dat/" . $room_info['file'],"w");
+	$file_access = fopen("./data/" . $room_info['file'],"w");
 	array_splice($room_data,16,0,$save_data);
 
 	foreach($room_data as $lines){
@@ -552,7 +552,7 @@ if(isset($_SESSION[$room_file])){
 			die("不正な操作 - 参加していないユーザーから書き込もうとしました");
 		}
 
-		$file_access = fopen("./dat/" . $room_file,"w");
+		$file_access = fopen("./data/" . $room_file,"w");
 		foreach($room_data as $lines){
 			fwrite($file_access,$lines);
 		}

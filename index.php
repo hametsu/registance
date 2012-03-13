@@ -2,11 +2,11 @@
 ini_set("display_errors","on");
 
 //room.datが存在するかを保持する。
-$room_exist = file_exists("./room.dat");
+$room_exist = file_exists("./data/room.dat");
 
 if ($room_exist){
 
-	$room_file = file("./room.dat");
+	$room_file = file("./data/room.dat");
 
 	$waiting_room = array();
 	$prosessing_room = array();

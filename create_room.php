@@ -22,12 +22,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET'){
 	$room_name = escape_string($room_name);
 	$room_file = (string) time() . ".dat";
 	//部屋のリストファイルを更新する
-	$file_access = fopen("./room.dat","a");
+	$file_access = fopen("data/room.dat","a");
 	fwrite($file_access,$room_file . "," . $room_name . "," . "waiting," . $_POST['people'] . "\n");
 	fclose($file_access);
 
 	//部屋のファイルを新規作成する
-	$file_access = fopen("./dat/" . $room_file,"w");
+	$file_access = fopen("./data/" . $room_file,"w");
 	fwrite($file_access,$room_name . "\n");//[0] 部屋の名前 
 	fwrite($file_access,"waiting\n"); //[1] 部屋の状態    
 	fwrite($file_access,"\n");//[2] 参加者
