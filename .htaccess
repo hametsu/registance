@@ -1,6 +1,6 @@
 DirectoryIndex index.php
 
-<Files dat>
+<Files data>
 order deny,allow
 deny from all
 </Files>
