@@ -16,7 +16,9 @@ function set_state($room_inform,$set_state,$reflash_room_list){
 	//Room listの更新
 	if($reflash_room_list){
 		$room_list = file("./data/room.dat");
-		$file_access = fopen("./data/room.dat" , "w");
+		$file_access = fopen("./data/room.dat" , "a");
+		flock($file_access, LOCK_EX);
+		ftruncate($file_access, 0);
 		foreach($room_list as $line){
 			$line_array = explode(",",$line);
 			if($room_inform['file'] === $line_array[0]){
@@ -24,15 +26,18 @@ function set_state($room_inform,$set_state,$reflash_room_list){
 			}
 			fwrite($file_access,$line);
 		}
+		flock($file_access, LOCK_UN);
 		fclose($file_access);
 	}
 	//自分のファイルを更新
 	$room_data    = file("./data/" . $room_inform['file']);
 	$room_data[2] = $set_state;
 	$file_access = fopen("./data/" . $room_inform['file']);
+	flock($file_access, LOCK_SH);
 	foreach($room_data as $line){
 		fwrite($file_access,$line);
 	}
+	flock($file_access, LOCK_UN);
 	fclose($file_access);
 
 }

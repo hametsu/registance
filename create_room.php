@@ -23,11 +23,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET'){
 	$room_file = (string) time() . ".dat";
 	//部屋のリストファイルを更新する
 	$file_access = fopen("data/room.dat","a");
+	flock($file_access, LOCK_EX);
+	fseek($file_access, 0, SEEK_END);
 	fwrite($file_access,$room_file . "," . $room_name . "," . "waiting," . $_POST['people'] . "\n");
+	flock($file_access, LOCK_UN);
 	fclose($file_access);
 
 	//部屋のファイルを新規作成する
-	$file_access = fopen("./data/" . $room_file,"w");
+	$file_access = fopen("./data/" . $room_file,"a");
+	flock($file_access, LOCK_EX);
+	ftruncate($file_access, 0);
 	fwrite($file_access,$room_name . "\n");//[0] 部屋の名前 
 	fwrite($file_access,"waiting\n"); //[1] 部屋の状態    
 	fwrite($file_access,"\n");//[2] 参加者
@@ -44,6 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET'){
 	fwrite($file_access,"\n");//[13] ミッションに賛成か否か
 	fwrite($file_access,"\n");//[14] ミッションの失敗/成功のカウント
 	fwrite($file_access,"\n");//[15] ミッションでどっちが勝利したか 
+	flock($file_access, LOCK_UN);
 	fclose($file_access);
 }
 header("Location:./show.php?file=$room_file");
