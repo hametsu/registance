@@ -1,6 +1,7 @@
 <?php
-//エスケープ関数の作成
+include_once("eseUtil.php");
 
+//エスケープ関数の作成
 function escape_string($target_string,$max_size){
 	$target_string = str_replace(",","",$target_string);
 	$target_string = strip_tags($target_string);
@@ -15,7 +16,7 @@ function escape_string($target_string,$max_size){
 function set_state($room_inform,$set_state,$reflash_room_list){
 	//Room listの更新
 	if($reflash_room_list){
-		$room_list = file("./data/room.dat");
+		$room_list = eseFile("./data/room.dat");
 		$file_access = fopen("./data/room.dat" , "a");
 		flock($file_access, LOCK_EX);
 		ftruncate($file_access, 0);
