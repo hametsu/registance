@@ -11,6 +11,8 @@ header('Expires: Mon,26 Jul 1997 05:00:00 GMT');
 
 require_once './lib/registance.php';
 require_once './lib/setlist.php';
+include_once './lib/eseUtil.php';
+
 //TODO 状態によって表示を切り替える -> 参加者、ログ
 $room_file = $_GET['file'];
 $room_file = str_replace("/","",$room_file);
@@ -19,7 +21,7 @@ if (!file_exists("data/$room_file") && !isset($_GET['file'])){
 	die("そのようなファイルは存在しません");
 }
 
-$room_data = file("data/$room_file");
+$room_data = eseFile("data/$room_file");
 $room_info = init_room_data($room_data,$room_file);
 $room_info['file'] = $_GET['file'];
 
@@ -131,7 +133,7 @@ if ($room_info['states'] === "prosessing" or $room_info['states'] === "end"){
 // lib/setlist.php に収録
 //
 $is_team = set_team_list($room_info);
-$is_vote = set_vote_list($room_info);
+$is_vote = set_is_vote($room_info);
 $is_mission = set_is_mission($room_info);
 
 //コマンドによって挙動を変更する
