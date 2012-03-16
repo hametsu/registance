@@ -42,7 +42,17 @@ class RegistanceTest extends PHPUnit_Framework_TestCase
 		$this->assertSame(escape_string("<h1>ほげ</h1>",20),"ほげ");
 	
 	}
+
+	/**
+	 * @depends test_init_room_data
+	 */
+	public function test_vote_user_to_string($room_info){
+
+		$room_data = file("./test.dat");
+		$this->assertSame(vote_user_to_string($room_info['vote_user']),$room_data[10]);
 	
+	}
+
 	/**
 	 * @depends test_init_room_data
 	 */
@@ -93,23 +103,108 @@ class RegistanceTest extends PHPUnit_Framework_TestCase
 	/**
 	 * @depends test_init_room_data
 	 */
-
 	public function test_is_vote($room_info){
 		$is_vote = set_is_vote($room_info);
 		$this->assertSame(count($is_vote),3);
 	}
 
-	public function test_room_info_to_room_data(){
+	/**
+	 * @depends test_init_room_data
+	 */
+
+	public function test_room_info_to_room_data($room_info){
+
+		$room_data = file("./test.dat");
+		
 		$test_room_data = array();
-		$room_info = array("states" => "end"
-							 ,"scene" => "end"
-							 ,"mission_victory"=>"registance");
 		$test_room_data = room_info_to_room_data($room_info,$test_room_data);
 
-		$this->assertSame($test_room_data[1],"end\n");
-		$this->assertSame($test_room_data[5],"end\n");
-		$this->assertSame($test_room_data[15],"registance\n");
+		for ($i = 0;$i < count($test_room_data);$i++){
+			if ($test_room_data[$i] !== $room_data[$i]){
+				echo "\nFailed Room_data is No." . $i . "\n"; 
+			}
+			$this->assertSame($test_room_data[$i],$room_data[$i]);
+		}
 	}
+
+	/**
+	 * @depends test_init_room_data
+	 */
+
+	public function test_init_waiting_to_processing($room_info){
+
+	$room_info = set_waiting_to_processing($room_info);
+
+	$this->assertSame($room_info['mission'],1);
+	$this->assertSame($room_info['not_leader'],$room_info['users']);
+	$this->assertSame(count($room_info['userrole']),1);
+
+	return $room_info;
+
+	}
+
+	/**
+	 * @depends test_init_waiting_to_processing
+	 */
+	public function test_set_scene_team($room_info){
+
+		//シーン : Teamの初期化
+		//
+		// 初期化するべきこと
+		//
+		//   === 共通 ===
+		//
+		//　・新しいリーダーの選出
+		//     ->$room_data['not_leader']からメンバーは一人減っているか？
+		//     ->$room_data['now_leader']には、ちゃんとメンバーが代入されているか？
+		//        ->そのメンバーとは、"\n"とか""の類ではないか？
+		//    
+		//
+		//　・チームの解散
+		//   * scene "mission" から遷移した場合のみ、ミッションナンバーをプラスする
+		//　・ミッション投票メンバーの初期化
+		//　・ミッション投票の初期化
+		//
+
+		$not_leader_count = count($room_info['not_leader']);
+		$premission = $room_info['mission'];
+
+		$room_info = set_scene("team",$room_info);
+		$this->assertSame($room_info['scene'],"team");
+		$this->assertSame($room_info['mission'],$premission);
+		$this->assertTrue(($room_info['now_leader'] !== "\n") && ($room_info['now_leader'] !== ""));
+		$this->assertSame($not_leader_count - 1,count($room_info['not_leader']));
+
+		//何も入っているべきではない関数群
+		$this->assertEmpty($room_info['team_member']);
+		$this->assertEmpty($room_info['mission_user']);
+		$this->assertEmpty($room_info['mission_vote']);
+
+		return $room_info;
+	}
+	/**
+	 * @depends test_set_scene_team
+	 */
+	public function test_mission_number_plus_one($room_info){
+		$premission = $room_info['mission'];
+		//scene missionのとき、ミッションナンバーがプラスされるか
+		$room_info['scene'] = "mission";
+		$room_info = set_scene("team",$room_info);
+		$this->assertSame($premission + 1,$room_info['mission']);
+	}
+
+	/**
+	 * @depends test_set_scene_team
+	 */
+	public function test_set_scene_vote($room_info){
+
+		//シーン : Voteの初期化
+		//
+		// 初期化するべきこと
+		//
+
+	}
+
 }
 
 

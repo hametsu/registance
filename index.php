@@ -1,6 +1,6 @@
 <?php
 ini_set("display_errors","on");
-include_once("eseUtil.php");
+include_once("./lib/eseUtil.php");
 
 //room.datが存在するかを保持する。
 $room_exist = file_exists("./data/room.dat");

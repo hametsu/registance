@@ -11,9 +11,65 @@ function escape_string($target_string,$max_size){
 	return $target_string;
 }
 
+//ステータスを初期化するための関数
 
-//ステータスをセットする関数の作成
-function set_state($room_inform,$set_state,$reflash_room_list){
+function set_waiting_to_processing($room_info){
+
+	//
+	//　Waiting -> Processingに移行する場合における初期化
+	//
+	//  ・Missionナンバーを1に変更
+	//　・リーダーになっていない人間を、ユーザーとして代入する
+	//　・Spyになる人間の選択
+	//
+
+	$room_info['mission'] = 1;
+	$room_info['not_leader']  = $room_info['users']; 
+
+	//役割の決定 
+	$get_user = $room_info['users']; 
+	shuffle($get_user);
+	$spy_numbers = array(3  => 1,
+		5  => 2,
+		6  => 2,
+		7  => 3,
+		8  => 3,
+		9  => 3,
+		10 => 4);
+
+	$room_info['userrole'] = array();
+	for ($i = 0; $i < ($spy_numbers[count($room_info['users'])]);$i ++){
+		array_push($room_info['userrole'],array_shift($get_user)); 
+	}
+
+	return $room_info;
+
+}
+
+function set_scene($target_scene,$room_info){
+	$pre_scene = $room_info['scene'];
+	$room_info['scene'] = $target_scene;
+	switch($target_scene){
+		case "team":
+			$result = elect_leader($room_info['not_leader']);
+			$room_info['now_leader'] = $result[0];
+			$room_info['not_leader'] = $result[1];
+			$room_info['mission'] = $pre_scene == "mission" ? $room_info['mission'] + 1 : $room_info['mission'];
+			$room_info['team_member'] = array();
+			$room_info['mission_user'] = array();
+			$room_info['mission_vote'] = array();
+
+			break;
+		case "vote":
+			break;
+	}
+
+	return $room_info;
+
+}
+
+//ステータスをファイル同士で更新する関数の作成
+function reflesh_state($room_inform,$set_state,$reflash_room_list){
 	//Room listの更新
 	if($reflash_room_list){
 		$room_list = eseFile("./data/room.dat");
@@ -88,34 +144,7 @@ foreach($victory_point as $victory_point_item){
 	}
 
 }
-return array("success" => $count_success, 
-			 "not_success" => $count_not_success);
-}
-
-
-function save_room_info($room_info,$room_log){
-	$file_access = fopen("./data/" . $room_info['file'],"w");
-
-	fwrite($file_access,$room_info['name'] .     "\n");//[0] 部屋の名前 
-	fwrite($file_access,$room_info['states'] .   "\n"); //[1] 部屋の状態    
-	fwrite($file_access,join(",",$room_info['users']) .    "\n");//[2] 参加者
-	fwrite($file_access,join(",",$room_info['userrole']) . "\n");//[3] 参加者の役割
-	fwrite($file_access,$room_info['people'].    "\n");//[4] 参加者の人数
-	fwrite($file_access,$room_info['scene']    . "\n");//[5] 部屋のシーン
-	fwrite($file_access,$room_info['mission']  . "\n");//[6] ミッションの回数
-	fwrite($file_access,$room_info['now_leader']."\n");//[7] 現在のリーダー
-	fwrite($file_access,join(",",$room_info['not_leader']) ."\n");//[8] リーダーをやっていない人間
-	fwrite($file_access,$room_info['team_member'] . "\n");//[9]チームのメンバー
-	fwrite($file_access,"\n");//[10] 投票をしたかどうか
-	fwrite($file_access,$room_info['vote_counter']."\n");//[11] 反対票かどうか
-	fwrite($file_access,"\n");//[12] ミッションに投票したかどうか
-	fwrite($file_access,"\n");//[13] ミッションに賛成か否か
-	fwrite($file_access,join(",",$room_info['victory_point']) ."\n");//[14] ミッションの失敗/成功のカウント
-	fwrite($file_access,$room_info['mission_victory'] . "\n"); //[15] ミッションでどっちが勝利したか
-	foreach($room_log as $line){
-		fwrite($file_access,$line);
-	}
-	fclose($file_access);
+return array("success" => $count_success, "not_success" => $count_not_success);
 }
 
 function elect_leader($member){
@@ -181,24 +210,50 @@ if(isset($_SESSION["name" . $room_info['file']])){
 
 //Room_info変数とRoom_data変数を同期する
 function room_info_to_room_data($room_info,$room_data){
+	
+	//関数を使ってパースを行うもの
+	$room_data[10] = vote_user_to_string($room_info['vote_user']);
+
+	//関数を使うほどでもないもの
+	$room_data[0] = $room_info['name'] . "\n";
 	$room_data[1] = $room_info['states'] . "\n";
+	$room_data[2] = implode(",",$room_info['users']) . "\n";
+	$room_data[3] = implode(",",$room_info['userrole']) . "\n";
+	$room_data[4] = (string) $room_info['people'] . "\n";
 	$room_data[5] = $room_info['scene'] . "\n";
+	$room_data[6] = (string) $room_info['mission'] . "\n";
+	$room_data[7] = $room_info['now_leader'] . "\n";
+	$room_data[8] = implode(",",$room_info['not_leader']) . "\n";
+	$room_data[9]  = implode(",",$room_info['team_member']) . "\n";
+	$room_data[11] = "\n"; // 欠番
+	$room_data[12] = implode(",",$room_info['mission_user']) . "\n";
+	$room_data[13] = implode(",",$room_info['mission_vote']) . "\n";
+	$room_data[14] = implode(",",$room_info['victory_point']) . "\n";
 	$room_data[15] = $room_info['mission_victory'] . "\n";
+
 	return $room_data;
 }
 
+//$room_info['vote_user']の配列化しにくい部分を配列化する
+function vote_user_to_string($vote_user){
+	$join_double_array = "";
+	foreach($vote_user as $vote_user_item){
+		$join_double_array .= $join_double_array === "" ? implode(",",$vote_user_item) : "," . implode(",",$vote_user_item);
+	}
+	return $join_double_array . "\n";
+}
+
 //データを書き込む
-
 function write_room_data($room_info,$room_data){
-
+	//$room_infoと$room_dataを同期する
+	$room_data = room_info_to_room_data($room_info,$room_data);
 	$file_access = fopen("./data/" . $room_info['file'],"w");
 	flock($file_access,LOCK_EX);
-	
 	foreach($room_data as $lines){
 		fwrite($file_access,$lines);
 	}
-	
 	flock($file_access,LOCK_UN);
 	fclose($file_access);
 
+	return $room_data;
 }
