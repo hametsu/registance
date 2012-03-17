@@ -14,7 +14,6 @@ require_once './lib/setlist.php';
 require_once './lib/message.php';
 include_once './lib/eseUtil.php';
 
-//TODO 状態によって表示を切り替える -> 参加者、ログ
 $room_file = $_GET['file'];
 $room_file = str_replace("/","",$room_file);
 
@@ -32,21 +31,32 @@ session_start();
 //
 //もしwaitingでなければ参加できない
 //---------------------------------
-if(!isset($_SESSION[$room_file]) && $room_info['states'] === "waiting"){
+if(!isset($_SESSION[$room_file])){
+if($room_info['states'] === "waiting"){
 	$_POST['name'] = escape_string($_POST['name'],40);
 
-		//名前の重複チェック
+	//
+	//名前の重複チェック
+	//
+	//
+		$is_already_user = FALSE;
 		if($_POST['name'] !== "" and isset($_POST['name'])){
 			foreach($room_info['users'] as $name_check){
-				if($name_check === $_POST['name']){
-					die("名前が重複しています");
+				if($name_check['name'] === $_POST['name']){
+					if ($name_check['pass'] !== $_POST['pass']){
+						die("名前とパスワードが一致しません");
+					} else {
+						$_SESSION["name$room_file"] = $_POST['name'];
+						$_SESSION[$room_file] = TRUE;
+						$is_already_user = TRUE;
+					}
 				}
-			} 
-
+			}
+		if (!$is_already_user){
 		//セッションの保存
 		$_SESSION["name$room_file"] = $_POST['name'];
 		$_SESSION[$room_file] = TRUE;
-		array_unshift($room_info['users'],$_POST['name']);
+		array_unshift($room_info['users'],array('name' => $_POST['name'] , 'pass' => $_POST['pass']));
 		
 		//ログに参加者として保存            
 		if(trim($room_data[2]) === ""){
@@ -62,9 +72,24 @@ if(!isset($_SESSION[$room_file]) && $room_info['states'] === "waiting"){
 			array_splice($room_data,16,0,$save_data);    
 		} 
 		write_room_data($room_info,$room_data);
-		
+		}
+	}
+} else {
+	foreach($room_info['users'] as $name_check){
+		if($name_check['name'] === $_POST['name']){
+			if($name_check['pass'] !== $_POST['pass']){
+				die("名前とパスワードが一致しません");
+			} else {
+				$_SESSION['name' . $room_file] = $_POST['name'];
+				$_SESSION[$room_file] = TRUE;
+			}
+		}
 	}
 }
+}
+
+
+
 
 //もし参加者が規定数を超えたなら、状態を変える
 if (($room_info['states'] === "waiting")  && (count($room_info['users']) >= $room_info["people"])) {
@@ -85,6 +110,9 @@ if (($room_info['states'] === "waiting")  && (count($room_info['users']) >= $roo
 
 }
 
+//対象の名前がコネクションしているかどうか、
+//またその対象の名前がリーダーか
+
 $is_your_connection = is_your_connection($room_info,$_SESSION);
 $is_browse_leader   = is_your_leader($room_info,$_SESSION);
 
@@ -93,11 +121,11 @@ $is_your_spy = FALSE;
 $is_spy = array();
 if ($room_info['states'] === "prosessing" or $room_info['states'] === "end"){
 	foreach($room_info['users'] as $set_key_user ){
-		$is_spy[$set_key_user] = FALSE;
+		$is_spy[$set_key_user['name']] = FALSE;
 	}
 
 	foreach($room_info['userrole'] as $set_key_user ){
-		$is_spy[$set_key_user] = TRUE;
+		$is_spy[$set_key_user['name']] = TRUE;
 	}
 
 	if($is_spy[$_SESSION["name" . $room_info['file']]]) {
@@ -188,7 +216,7 @@ if($room_info['scene'] === "vote"){
 			$room_info['scene'] = "team";
 			$room_info['team_member'] = array();
 			foreach($room_info['users'] as $set_key_user){
-				$is_team["$set_key_user"] = FALSE;
+				$is_team[$set_key_user['name']] = FALSE;
 			}
 
 		}
@@ -240,6 +268,7 @@ $count_success = $result['success'];
 $count_not_success = $result["not_success"];
 
 //もし、ゲームの終了条件なら、ゲームを終了する
+if ($room_info['states'] === "processing"){
 if ($count_success >= 3 || $count_not_success >= 3){
 	reflesh_state($room_info,"end",TRUE);
 	$room_info['states'] = "end";
@@ -256,6 +285,7 @@ if ($count_success >= 3 || $count_not_success >= 3){
 	}
 	array_splice($room_data,16,0,$save_data);
 	write_room_data($room_info,$room_data);
+}
 }
 
 //------------------------------
@@ -329,7 +359,7 @@ if($is_your_connection){
 	switch($room_info['scene']){
 	case "vote":
 		if($is_vote[$_SESSION["name" . $room_info["file"]]]){
-			echo "<p>あなたは既に投票しています</p>";
+			echo "<p>あなたは既に投票しています。<br />(現在、" . $vote_count . "人が投票しています)</p>";
 		} else {
 			echo "<p>
 				<form action='./show.php?file=$room_file' method='POST'>
@@ -382,14 +412,15 @@ echo "<li><a href='./show.php?file=$room_file'>更新する</a></li>";
 
 <?php
 if(!isset($_SESSION[$room_file])){
-	if($room_info['states'] === "waiting"){
 		echo "
 			<form action='./show.php?file=$room_file' method='POST'>
-			名前：<input type='textarea' name='name'/>
+			名前：<input type='textarea' name='name'/><br />
+			簡易パスワード:<input type='textarea' name='pass' />
 			<input type='submit' value='参加する' />
 			</form>
+			<p style='font-size:75%;text-align:center;'>簡易パスワードは再ログインの為だけに使います。</p>
 			";
-	} elseif($room_info['states'] == "prosessing"){
+	if($room_info['states'] == "prosessing"){
 
 		echo "<h2>既にゲームが開始しています。</h2>";
 
@@ -433,7 +464,7 @@ echo "</ul>";
 switch($room_info['states']){
 case "waiting":
 	foreach($room_info['users'] as $show_user){
-		echo "<li>$show_user</li>";
+		echo "<li>" . $show_user['name'] . "</li>";
 	}
 	break;
 case "prosessing":
@@ -442,7 +473,7 @@ case "prosessing":
 			<input type='hidden' name='command' value='select_member' />";
 
 		foreach($room_info['users'] as $show_user){
-			echo "<li><input type='CHECKBOX' name='select_user[]' value='$show_user' />";
+			echo "<li><input type='CHECKBOX' name='select_user[]' value='" . $show_user['name'] . "' />";
 
 			if($show_user === $room_info['now_leader']){
 				echo "<span class='leader'>【リーダー】</span>";
@@ -477,17 +508,17 @@ case "prosessing":
 			}
 
 
-			echo "$show_user</li>";
+			echo $show_user['name'] . "</li>";
 		}
 	}
 	break;
 case "end":
 	foreach($room_info['users'] as $show_user){
 		echo "<li>";
-		if ($is_spy[$show_user]){
+		if ($is_spy[$show_user['name']]){
 			echo "【スパイ】";
 		}
-		echo "$show_user</li>";
+		echo $show_user['name']."</li>";
 	}
 	break;
 

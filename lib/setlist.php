@@ -7,13 +7,13 @@ function set_team_list($room_info){
 
 	if ($room_info['states'] === "prosessing"){
 		foreach($room_info['users'] as $set_key_user){
-			$is_team[$set_key_user] = FALSE;
+			$is_team[$set_key_user['name']] = FALSE;
 		}
 
 	foreach($room_info['team_member'] as $set_key_user){
 		$is_team[$set_key_user] = TRUE;
 	}
-}
+	}
 	return $is_team;
 }
 
@@ -22,11 +22,11 @@ function set_is_mission($room_info){
 	$is_mission = array();
 	if ($room_info['scene'] === "mission"){
 		foreach($room_info['team_member'] as $set_key_user){
-			$is_mission[$set_key_user] = FALSE;   
+			$is_mission[$set_key_user['name']] = FALSE;   
 		}
 
 		foreach($room_info['mission_user'] as $set_key_user){
-			$is_mission[$set_key_user] = TRUE;
+			$is_mission[$set_key_user['name']] = TRUE;
 		}
 	}
 	return $is_mission;
@@ -38,7 +38,7 @@ function set_is_vote($room_info){
 $is_vote = array();
 if ($room_info['scene'] === "vote"){
 	foreach($room_info['users'] as $set_key_user){
-		$is_vote[$set_key_user] = FALSE;
+		$is_vote[$set_key_user['name']] = FALSE;
 	}
 
 	foreach($room_info['vote_user'] as $set_key_user){

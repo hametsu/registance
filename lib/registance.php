@@ -104,7 +104,7 @@ function init_room_data($room_data,$room_file){
 		"file"   => $room_file,
 		"name"   => trim($room_data[0]),
 		"states" => trim($room_data[1]),
-		"users"  => $room_data[2] === "\n" ? array() : explode(",",trim($room_data[2])),
+		"users"  => array(),
 		"userrole" => $room_data[3] === "\n" ? array() : explode(",",trim($room_data[3])),
 		"people" => (int) trim($room_data[4]),
 		"scene" => trim($room_data[5]),
@@ -119,6 +119,11 @@ function init_room_data($room_data,$room_file){
 		"victory_point" => $room_data[14] === "\n" ? array() : explode(",",trim($room_data[14])),
 		"mission_victory" => trim($room_data[15])
 	);
+
+	$parse_users = $room_data[2] === "\n" ? array() : explode(",",trim($room_data[2]));
+	for($i = 0; $i < count($parse_users);$i += 2){
+		array_push($room_info['users'],array('name' => $parse_users[$i],'pass' => $parse_users[$i + 1]));
+	}
 
 	$parse_vote_user = $room_data[10] === "\n" ? array() : explode(",",trim($room_data[10]));
 	for ($i = 0;$i < count($parse_vote_user);$i += 2){
@@ -200,7 +205,7 @@ function is_your_connection($room_info,$_SESSION){
 $is_your_connection = FALSE;
 if(isset($_SESSION["name" . $room_info['file']])){
 	foreach($room_info['users'] as $user_item){
-		if($_SESSION["name" . $room_info['file']] === $user_item){
+		if($_SESSION["name" . $room_info['file']] === $user_item['name']){
 			$is_your_connection = TRUE;
 		}
 	}
@@ -213,11 +218,11 @@ function room_info_to_room_data($room_info,$room_data){
 	
 	//関数を使ってパースを行うもの
 	$room_data[10] = vote_user_to_string($room_info['vote_user']);
+	$room_data[2]  = users_to_string($room_info['users']);
 
 	//関数を使うほどでもないもの
 	$room_data[0] = $room_info['name'] . "\n";
 	$room_data[1] = $room_info['states'] . "\n";
-	$room_data[2] = implode(",",$room_info['users']) . "\n";
 	$room_data[3] = implode(",",$room_info['userrole']) . "\n";
 	$room_data[4] = (string) $room_info['people'] . "\n";
 	$room_data[5] = $room_info['scene'] . "\n";
@@ -233,6 +238,17 @@ function room_info_to_room_data($room_info,$room_data){
 
 	return $room_data;
 }
+//$room_info['users']の配列化しにくい部分を配列化する
+function users_to_string($room_users){
+
+	$join_double_array = "";
+	foreach($room_users as $user_item){
+		$join_double_array .= $join_double_array === "" ? $user_item['name'] . "," . $user_item['pass'] : "," . $user_item['name'] . "," . $user_item['pass'];
+	}
+	return $join_double_array . "\n";
+
+}
+
 
 //$room_info['vote_user']の配列化しにくい部分を配列化する
 function vote_user_to_string($vote_user){

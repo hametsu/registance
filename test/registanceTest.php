@@ -9,10 +9,14 @@ class RegistanceTest extends PHPUnit_Framework_TestCase
 		$room_file = "./test.dat";
 		$room_data = file($room_file);
 		$room_info = init_room_data($room_data,$room_file);
-
+		
+		
 		$this->assertSame($room_info['name'],"部屋ネーム");
 		$this->assertSame($room_info['states'],"prosessing");
 		$this->assertSame(count($room_info['users']),3);
+		$this->assertSame(count($room_info['users'][0]),2);
+		$this->assertSame($room_info['users'][0]['name'],'User1');
+		$this->assertSame($room_info['users'][0]['pass'],'pass');
 		$this->assertSame($room_info['userrole'][0],"User3");
 		$this->assertSame($room_info['people'],3);
 		$this->assertSame($room_info['scene'],"vote");
