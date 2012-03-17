@@ -65,11 +65,11 @@ if($room_info['states'] === "waiting"){
 			$room_data[2] = $_POST['name'] . "," . $room_data[2];
 		}
 		$save_name = $_POST['name'];
-		$save_data = "system,warning,red,".$_POST['name']."さんが入室しました。\n";
+		$save_data = "system,warning,red,".$_POST['name']."さんが入室しました。";
 		if(!isset($room_data[16])){
-			$room_data[16] = $save_data;
+			$room_data[16] = $save_data . "," . (string) time() . "\n";
 		} else {
-			array_splice($room_data,16,0,$save_data);    
+			array_splice($room_data,16,0,$save_data . "," . (string) time() . "\n");    
 		} 
 		write_room_data($room_info,$room_data);
 		}
@@ -149,8 +149,8 @@ if ($room_info['states'] === "prosessing" && isset($_POST['command'])){
 			&& (count($_POST['select_user']) === select_member($room_info['mission'],count($room_info['users'])))){
 
 				//チームを選択する
-				$save_data = "system,warning,red," . $_SESSION["name$room_file"] . "さんは、【" . implode("、",$_POST['select_user']) . "】を、チームとして選びました。\n";
-				array_splice($room_data,16,0,$save_data);    
+				$save_data = "system,warning,red," . $_SESSION["name$room_file"] . "さんは、【" . implode("、",$_POST['select_user']) . "】を、チームとして選びました。";
+				array_splice($room_data,16,0,$save_data . "," . (string) time() . "\n");    
 
 				foreach($_POST['select_user'] as $set_user){
 					$is_team[$set_user] = TRUE;
@@ -197,11 +197,11 @@ if($room_info['scene'] === "vote"){
 		//投票者の統計をログに流す
 		$is_team_trust = 0;
 		foreach($room_info['vote_user'] as $get_user){
-			$save_data = "system,message,red," . $get_user[0] . "さんは、【" . ($get_user[1] === "trust" ? "信任" : "不信任") . "】に投票しました。\n";
+			$save_data = "system,message,red," . $get_user[0] . "さんは、【" . ($get_user[1] === "trust" ? "信任" : "不信任") . "】に投票しました。";
 			if ($get_user[1] === "trust"){
 				$is_team_trust ++;
 			}
-			array_splice($room_data,16,0,$save_data);   
+			array_splice($room_data,16,0,$save_data . "," . (string) time() . "\n");   
 		}
 
 		//投票者の初期化
@@ -209,10 +209,10 @@ if($room_info['scene'] === "vote"){
 		$room_info['vote_user'] = array();
 
 		if ($is_team_trust > (count($room_info['users']) / 2)){
-			array_splice($room_data,16,0,"system,warning,red,このチーム(" . implode(",",$room_info['team_member']) . ")は信任されました。\n");   
+			array_splice($room_data,16,0,"system,warning,red,このチーム(" . implode(",",$room_info['team_member']) . ")は信任されました。" . ","  . (string) time() . "\n");   
 			$room_info['scene'] = "mission";
 		} else {
-			array_splice($room_data,16,0,"system,warning,red,このチーム(" . implode(",",$room_info['team_member']) . ")は不信任にされました。\n");
+			array_splice($room_data,16,0,"system,warning,red,このチーム(" . implode(",",$room_info['team_member']) . ")は不信任にされました。" . ","  . (string) time() . "\n");
 			$room_info['scene'] = "team";
 			$room_info['team_member'] = array();
 			foreach($room_info['users'] as $set_key_user){
@@ -235,13 +235,13 @@ if($room_info['scene'] === "mission"
 			}
 		}
 		if ($count_falsed === 0){
-			$save_data = "system,warning,red,このミッションは【成功】しました。\n";
+			$save_data = "system,warning,red,このミッションは【成功】しました。";
 			array_unshift($room_info['victory_point'],"resistance");
 		} else {
-			$save_data = "system,warning,red,このミッションは、" . $count_falsed . "人の「失敗」への投票で、【失敗】しました。\n";
+			$save_data = "system,warning,red,このミッションは、" . $count_falsed . "人の「失敗」への投票で、【失敗】しました。";
 			array_unshift($room_info['victory_point'],"spy");
 		}
-		array_splice($room_data,16,0,$save_data);
+		array_splice($room_data,16,0,$save_data . "," . time());
 
 		//Missionを初期化する
 		$room_info = set_scene("team",$room_info);
@@ -277,13 +277,13 @@ if ($count_success >= 3 || $count_not_success >= 3){
 	if ($count_success >= 3){
 		$room_info['mission_victory'] = "registance";
 
-		$save_data = "system,warning,red,やりましたね！スパイの妨害を勝ち抜き、【レジスタンス側の勝利】です。\n";
+		$save_data = "system,warning,red,やりましたね！スパイの妨害を勝ち抜き、【レジスタンス側の勝利】です。";
 
 	} elseif ($count_not_success >= 3){
 		$room_info['mission_victory'] = "spy";
-		$save_data = "system,warning,red,やりましたね！無事、レジスタンスを妨害し、【スパイ側の勝利】です。\n";
+		$save_data = "system,warning,red,やりましたね！無事、レジスタンスを妨害し、【スパイ側の勝利】です。";
 	}
-	array_splice($room_data,16,0,$save_data);
+	array_splice($room_data,16,0,$save_data . "," . (string) time() . "\n" );
 	write_room_data($room_info,$room_data);
 }
 }
@@ -305,11 +305,11 @@ if(isset($_SESSION[$room_file])){
 		$_POST['color'] = escape_string($_POST['color'],20);
 		$_POST['say']   = escape_string($_POST['say'],600);
 		if(isset($_POST['spysay']) && $is_your_spy && $_POST['spysay'] === "on"){
-			$save_data = "$user_name,spysay,".$_POST['color'].",".$_POST['say']."\n";
+			$save_data = "$user_name,spysay,".$_POST['color'].",".$_POST['say'];
 		}else{
-			$save_data = "$user_name,say,".$_POST['color'].",".$_POST['say']."\n";
+			$save_data = "$user_name,say,".$_POST['color'].",".$_POST['say'];
 		}
-		array_splice($room_data,16,0,$save_data);    
+		array_splice($room_data,16,0,$save_data . "," . (string) time() . "\n");    
 		$_SESSION["color$room_file"] = $_POST['color'];
 
 		$exsist_user = FALSE;
@@ -338,6 +338,38 @@ if(isset($_SESSION[$room_file])){
     <title><?php 
 echo $room_info['name'] . " - レジスタンス・チャット";
 ?></title>
+<script type="text/javascript" src="./lib/jquery-1.7.1.min.js"></script>
+<script type="text/javascript">
+
+var reflesh_time = new Date/1e3|0 ;
+<?php
+echo "var file_name =\"" . $room_info['file'] . "\";\n";
+?>
+$(function(){
+		setInterval(function(){
+				$.getJSON('./ajaxpush.php?file=' + file_name + '&time=' + reflesh_time,
+					function(resent_log){
+			if(resent_log.length !== 0){
+			for (var i = 0,max = resent_log.length;i < max; i++){
+				switch(resent_log[i]["comd"]){
+				case "say":
+				//echo "<li style='color:".$log_array[2]."'><span class='name'>".$log_array[0].":</span>".$log_array[3]."</li>";
+					$("<li/>").css("color",resent_log[i]["comd"]).css("display","hiddden").html("<span class='name'>" + resent_log[i]["name"] + ":</span>" + resent_log[i]["message"]).fadeIn("slow").prependTo("#show_log");
+					break;
+				case "warning":
+					$("<li/>").addClass("warning").text(resent_log[i]["message"]).fadeIn("slow").prependTo("#show_log");
+					break;
+				case "message":
+					break;
+					}
+			//END FOR
+			}
+			}
+		});
+			reflesh_time = new Date/1e3|0;
+		},9000);
+		});
+</script>
 </head>
 <body>
     <div id="main">
@@ -404,9 +436,7 @@ if($is_your_connection){
 <?php
 
 echo "<li><a href='./show.php?file=$room_file'>更新する</a></li>";
-
 ?>
-
 	<li><a href='./index.php'>玄関に戻る</a></li>
     </ul>
 
@@ -530,7 +560,7 @@ case "end":
     </div>
     <div id="log">
     <h2>ログ</h2>
-    <ul>
+    <ul id="show_log">
 <?php
 if(!isset($room_data[16])){
 	echo "<li>まだ何も発言されていません。</li>";
