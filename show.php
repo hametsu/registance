@@ -152,8 +152,8 @@ if ($room_info['states'] === "prosessing" && isset($_POST['command'])){
 			&& (count($_POST['select_user']) === select_member($room_info['mission'],count($room_info['users'])))){
 
 				//チームを選択する
-				$save_data = "system,warning,red," . $_SESSION["name$room_file"] . "さんは、【" . implode("、",$_POST['select_user']) . "】を、チームとして選びました。";
-				array_splice($room_data,16,0,$save_data . "," . (string) time() . "\n");    
+				$save_data = $_SESSION["name$room_file"] . "さんは、【" . implode("、",$_POST['select_user']) . "】を、チームとして選びました。";
+				$room_data = set_log($room_data,"system","warning","red",$save_data);
 
 				foreach($_POST['select_user'] as $set_user){
 					$is_team[$set_user] = TRUE;
@@ -204,7 +204,7 @@ if($room_info['scene'] === "vote"){
 			if ($get_user[1] === "trust"){
 				$is_team_trust ++;
 			}
-			array_splice($room_data,16,0,$save_data . "," . (string) time() . "\n");   
+		$room_data = set_log($room_data,"system","message","red",$save_data);
 		}
 
 		//投票者の初期化
@@ -212,10 +212,10 @@ if($room_info['scene'] === "vote"){
 		$room_info['vote_user'] = array();
 
 		if ($is_team_trust > (count($room_info['users']) / 2)){
-			array_splice($room_data,16,0,"system,warning,red,このチーム(" . implode(",",$room_info['team_member']) . ")は信任されました。" . ","  . (string) time() . "\n");   
+			$room_data = set_log($room_data,"system","warning","red","system,warning,red,このチーム(" . implode(",",$room_info['team_member']) . ")は信任されました。" . ","  . (string) time() . "\n");   
 			$room_info['scene'] = "mission";
 		} else {
-			array_splice($room_data,16,0,"system,warning,red,このチーム(" . implode(",",$room_info['team_member']) . ")は不信任にされました。" . ","  . (string) time() . "\n");
+			$room_data = set_log($room_data,"system","warning","red","このチーム(" . implode(",",$room_info['team_member']) . ")は不信任にされました。" . ","  . (string) time() . "\n");
 			$room_info['scene'] = "team";
 			$room_info['team_member'] = array();
 			foreach($room_info['users'] as $set_key_user){
@@ -238,13 +238,13 @@ if($room_info['scene'] === "mission"
 			}
 		}
 		if ($count_falsed === 0){
-			$save_data = "system,warning,red,このミッションは【成功】しました。";
+			$save_data = "このミッションは【成功】しました。";
 			array_unshift($room_info['victory_point'],"resistance");
 		} else {
-			$save_data = "system,warning,red,このミッションは、" . $count_falsed . "人の「失敗」への投票で、【失敗】しました。";
+			$save_data = "このミッションは、" . $count_falsed . "人の「失敗」への投票で、【失敗】しました。";
 			array_unshift($room_info['victory_point'],"spy");
 		}
-		array_splice($room_data,16,0,$save_data . "," . time());
+		$room_data = set_log($room_data,"system","warning","red",$save_data);
 
 		//Missionを初期化する
 		$room_info = set_scene("team",$room_info);
@@ -280,13 +280,13 @@ if ($count_success >= 3 || $count_not_success >= 3){
 	if ($count_success >= 3){
 		$room_info['mission_victory'] = "registance";
 
-		$save_data = "system,warning,red,やりましたね！スパイの妨害を勝ち抜き、【レジスタンス側の勝利】です。";
+		$save_data = "やりましたね！スパイの妨害を勝ち抜き、【レジスタンス側の勝利】です。";
 
 	} elseif ($count_not_success >= 3){
 		$room_info['mission_victory'] = "spy";
-		$save_data = "system,warning,red,やりましたね！無事、レジスタンスを妨害し、【スパイ側の勝利】です。";
+		$save_data = "やりましたね！無事、レジスタンスを妨害し、【スパイ側の勝利】です。";
 	}
-	array_splice($room_data,16,0,$save_data . "," . (string) time() . "\n" );
+	$room_data = set_log($room_data,"system","warning","red",$save_data);
 	write_room_data($room_info,$room_data);
 }
 }
@@ -308,11 +308,11 @@ if(isset($_SESSION[$room_file])){
 		$_POST['color'] = escape_string($_POST['color'],20);
 		$_POST['say']   = escape_string($_POST['say'],600);
 		if(isset($_POST['spysay']) && $is_your_spy && $_POST['spysay'] === "on"){
-			$save_data = "$user_name,spysay,".$_POST['color'].",".$_POST['say'];
+			//$save_data = "$user_name,spysay,".$_POST['color'].",".$_POST['say'];
 		}else{
-			$save_data = "$user_name,say,".$_POST['color'].",".$_POST['say'];
+			$save_data = $_POST['color'].",".$_POST['say'];
 		}
-		array_splice($room_data,16,0,$save_data . "," . (string) time() . "\n");    
+		$room_data = set_log($room_data,$user_name,"say",$save_data);
 		$_SESSION["color$room_file"] = $_POST['color'];
 
 		$exsist_user = FALSE;
