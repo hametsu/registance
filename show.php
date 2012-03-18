@@ -34,7 +34,7 @@ session_start();
 if(!isset($_SESSION[$room_file])){
 if($room_info['states'] === "waiting"){
 	$_POST['name'] = escape_string($_POST['name'],40);
-
+	$_POST['pass'] = escape_string($_POST['pass'],40);
 	//
 	//名前の重複チェック
 	//
@@ -51,6 +51,9 @@ if($room_info['states'] === "waiting"){
 						$is_already_user = TRUE;
 					}
 				}
+			}
+			if ($_POST['pass'] === ""){
+				die ("パスワードが入力されていません。");
 			}
 		if (!$is_already_user){
 		//セッションの保存

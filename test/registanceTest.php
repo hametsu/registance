@@ -147,6 +147,12 @@ class RegistanceTest extends PHPUnit_Framework_TestCase
 
 	}
 
+	public function test_set_log(){
+		$room_data = file("./test.dat");
+		$room_data = set_log($room_data,"ほげネーム","say","red","<h1>ほ,げ,ほ,げ</h1>");
+		$this->assertSame($room_data[16],"ほげネーム,say,red,ほげほげ" .",". (string) time() . "\n");
+	}
+
 	/**
 	 * @depends test_init_waiting_to_processing
 	 */

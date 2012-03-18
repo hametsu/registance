@@ -1,6 +1,15 @@
 <?php
 include_once("eseUtil.php");
 
+//ログデータを代入する
+function set_log($room_data,$save_name,$save_comd,$save_color,$save_message){
+	$save_message = escape_string($save_message,1000);
+	$save_data = $save_name . "," . $save_comd . "," . $save_color . "," . $save_message; 
+	array_splice($room_data,16,0,$save_data . "," . (string) time() . "\n");
+	return $room_data;
+
+}
+
 //エスケープ関数の作成
 function escape_string($target_string,$max_size){
 	$target_string = str_replace(",","",$target_string);
