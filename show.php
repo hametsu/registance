@@ -307,12 +307,14 @@ if(isset($_SESSION[$room_file])){
 		//エスケープ処理
 		$_POST['color'] = escape_string($_POST['color'],20);
 		$_POST['say']   = escape_string($_POST['say'],600);
+		/*
 		if(isset($_POST['spysay']) && $is_your_spy && $_POST['spysay'] === "on"){
 			//$save_data = "$user_name,spysay,".$_POST['color'].",".$_POST['say'];
 		}else{
 			$save_data = $_POST['color'].",".$_POST['say'];
 		}
-		$room_data = set_log($room_data,$user_name,"say",$save_data);
+		 */
+		$room_data = set_log($room_data,$user_name,"say",$_POST['color'],$_POST['say']);
 		$_SESSION["color$room_file"] = $_POST['color'];
 
 		$exsist_user = FALSE;
@@ -361,6 +363,7 @@ $(function(){
 					break;
 				case "warning":
 					$("<li/>").addClass("warning").text(resent_log[i]["message"]).fadeIn("slow").prependTo("#show_log");
+					location.reload();
 					break;
 				case "message":
 					break;
