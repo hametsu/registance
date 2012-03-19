@@ -139,7 +139,8 @@ class RegistanceTest extends PHPUnit_Framework_TestCase
 	$room_info = set_waiting_to_processing($room_info);
 
 	$this->assertSame($room_info['mission'],1);
-	$this->assertSame($room_info['not_leader'],$room_info['users']);
+	$this->assertSame($room_info['not_leader'][0],$room_info['users'][0]['name']);
+	$this->assertSame($room_info['not_leader'][2],$room_info['users'][2]['name']);
 	$this->assertSame(count($room_info['userrole']),1);
 
 	return $room_info;
