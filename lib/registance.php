@@ -33,7 +33,10 @@ function set_waiting_to_processing($room_info){
 	//
 
 	$room_info['mission'] = 1;
-	$room_info['not_leader']  = $room_info['users']; 
+	$room_info['not_leader']  = array();
+	foreach ($room_info['users'] as $user_item){
+		array_push($room_info['not_leader'],$user_item['name']);
+	}
 
 	//役割の決定 
 	$get_user = $room_info['users']; 
@@ -46,11 +49,12 @@ function set_waiting_to_processing($room_info){
 		9  => 3,
 		10 => 4);
 
+
 	$room_info['userrole'] = array();
 	for ($i = 0; $i < ($spy_numbers[count($room_info['users'])]);$i ++){
-		array_push($room_info['userrole'],array_shift($get_user)); 
+		$push_user = array_shift($get_user);
+		array_push($room_info['userrole'],$push_user["name"]); 
 	}
-
 	return $room_info;
 
 }
@@ -138,7 +142,6 @@ function init_room_data($room_data,$room_file){
 	for ($i = 0;$i < count($parse_vote_user);$i += 2){
 		array_push($room_info['vote_user'],array($parse_vote_user[$i],$parse_vote_user[$i + 1]));
 	}
-
 	return $room_info;
 }
 
@@ -175,7 +178,7 @@ $is_your_spy = FALSE;
 $is_spy = array();
 if ($room_info_['state'] === "prosessing" or $room_info['state'] === "end"){
 	foreach($room_info['users'] as $set_key_user ){
-		$is_spy[$set_key_user] = FALSE;
+		$is_spy[$set_key_user["name"]] = FALSE;
 	}
 
 	foreach($room_info['userrole'] as $set_key_user ){

@@ -128,13 +128,14 @@ if ($room_info['states'] === "prosessing" or $room_info['states'] === "end"){
 	}
 
 	foreach($room_info['userrole'] as $set_key_user ){
-		$is_spy[$set_key_user['name']] = TRUE;
+		$is_spy[$set_key_user] = TRUE;
 	}
 
 	if($is_spy[$_SESSION["name" . $room_info['file']]]) {
 		$is_your_spy = TRUE;
 	}
 }
+
 
 //
 // lib/setlist.php に収録
@@ -200,7 +201,7 @@ if($room_info['scene'] === "vote"){
 		//投票者の統計をログに流す
 		$is_team_trust = 0;
 		foreach($room_info['vote_user'] as $get_user){
-			$save_data = "system,message,red," . $get_user[0] . "さんは、【" . ($get_user[1] === "trust" ? "信任" : "不信任") . "】に投票しました。";
+			$save_data = $get_user[0] . "さんは、【" . ($get_user[1] === "trust" ? "信任" : "不信任") . "】に投票しました。";
 			if ($get_user[1] === "trust"){
 				$is_team_trust ++;
 			}
@@ -212,10 +213,10 @@ if($room_info['scene'] === "vote"){
 		$room_info['vote_user'] = array();
 
 		if ($is_team_trust > (count($room_info['users']) / 2)){
-			$room_data = set_log($room_data,"system","warning","red","system,warning,red,このチーム(" . implode(",",$room_info['team_member']) . ")は信任されました。" . ","  . (string) time() . "\n");   
+			$room_data = set_log($room_data,"system","warning","red","このチーム(" . implode(",",$room_info['team_member']) . ")は信任されました。");   
 			$room_info['scene'] = "mission";
 		} else {
-			$room_data = set_log($room_data,"system","warning","red","このチーム(" . implode(",",$room_info['team_member']) . ")は不信任にされました。" . ","  . (string) time() . "\n");
+			$room_data = set_log($room_data,"system","warning","red","このチーム(" . implode(",",$room_info['team_member']) . ")は不信任にされました。");
 			$room_info['scene'] = "team";
 			$room_info['team_member'] = array();
 			foreach($room_info['users'] as $set_key_user){
@@ -271,7 +272,7 @@ $count_success = $result['success'];
 $count_not_success = $result["not_success"];
 
 //もし、ゲームの終了条件なら、ゲームを終了する
-if ($room_info['states'] === "processing"){
+if ($room_info['states'] === "prosessing"){
 if ($count_success >= 3 || $count_not_success >= 3){
 	reflesh_state($room_info,"end",TRUE);
 	$room_info['states'] = "end";
@@ -511,19 +512,19 @@ case "prosessing":
 		foreach($room_info['users'] as $show_user){
 			echo "<li><input type='CHECKBOX' name='select_user[]' value='" . $show_user['name'] . "' />";
 
-			if($show_user === $room_info['now_leader']){
+			if($show_user["name"] === $room_info['now_leader']){
 				echo "<span class='leader'>【リーダー】</span>";
 			}
 
-			if($is_your_spy && $is_spy["$show_user"]){
+			if($is_your_spy && $is_spy[$show_user["name"]]){
 				echo "<span class='spy'>【スパイ】</span>";
 			}
 
-			if($is_team["$show_user"]){
+			if($is_team[$show_user["name"]]){
 				echo "<span class='team'>【チーム】</span>";
 			}
 
-			echo "$show_user</li>";
+			echo $show_user["name"] . "</li>";
 		}
 		echo "<input type='submit' value='選択する' />";
 		echo "</form>";  
@@ -532,14 +533,14 @@ case "prosessing":
 		foreach($room_info['users'] as $show_user){
 			echo "<li>";
 
-			if($show_user === $room_info['now_leader']){
+			if($show_user["name"] === $room_info['now_leader']){
 				echo "<span class='leader'>【リーダー】</span>";
 			}
 
-			if($is_your_spy && $is_spy["$show_user"]){
+			if($is_your_spy && $is_spy[$show_user["name"]]){
 				echo "<span class='spy'>【スパイ】</span>";
 			}
-			if($is_team["$show_user"]){
+			if($is_team[$show_user["name"]]){
 				echo "<span class='team'>【チーム】</span>";
 			}
 

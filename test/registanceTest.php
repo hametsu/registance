@@ -10,7 +10,6 @@ class RegistanceTest extends PHPUnit_Framework_TestCase
 		$room_data = file($room_file);
 		$room_info = init_room_data($room_data,$room_file);
 		
-		
 		$this->assertSame($room_info['name'],"部屋ネーム");
 		$this->assertSame($room_info['states'],"prosessing");
 		$this->assertSame(count($room_info['users']),3);
