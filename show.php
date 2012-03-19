@@ -364,7 +364,7 @@ $(function(){
 					break;
 				case "warning":
 					//$("<li/>").addClass("warning").text(resent_log[i]["message"]).fadeIn("slow").prependTo("#show_log");
-					location.reload();
+					location.replace(location.href);
 					break;
 				case "message":
 					break;
