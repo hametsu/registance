@@ -362,7 +362,7 @@ $(function(){
 					$("<li/>").css("color",resent_log[i]["comd"]).css("display","hiddden").html("<span class='name'>" + resent_log[i]["name"] + ":</span>" + resent_log[i]["message"]).fadeIn("slow").prependTo("#show_log");
 					break;
 				case "warning":
-					$("<li/>").addClass("warning").text(resent_log[i]["message"]).fadeIn("slow").prependTo("#show_log");
+					//$("<li/>").addClass("warning").text(resent_log[i]["message"]).fadeIn("slow").prependTo("#show_log");
 					location.reload();
 					break;
 				case "message":
