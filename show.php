@@ -179,6 +179,7 @@ if ($room_info['states'] === "prosessing" && isset($_POST['command'])){
 	case "mission":
 		if($_POST['command'] === "mission"
 			&& $is_your_connection
+			&& $is_mission[$_SESSION['name' . $room_info['file']]] === FALSE
 			&& $is_team[$_SESSION['name' . $room_info['file']]]){
 				$is_mission[$_SESSION['name' . $room_info['file']]] = TRUE;
 				array_unshift($room_info['mission_user'],$_SESSION['name' . $room_info['file']]);
@@ -227,6 +228,7 @@ if($room_info['scene'] === "vote"){
 		write_room_data($room_info,$room_data);
 	}        
 }
+
 //チームメンバーが全員ミッションを選んだら、
 //ミッション成功判定を行う
 if($room_info['scene'] === "mission"

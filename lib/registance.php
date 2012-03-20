@@ -59,10 +59,6 @@ function set_waiting_to_processing($room_info){
 
 }
 
-//
-// 次のシーンが始まるまで初期化しておかなくてはならない一群
-//
-
 function set_scene($target_scene,$room_info){
 	$pre_scene = $room_info['scene'];
 	$room_info['scene'] = $target_scene;
@@ -78,9 +74,6 @@ function set_scene($target_scene,$room_info){
 
 			break;
 		case "vote":
-			break;
-		case "mission":
-			$room_info['vote_user'] = array();
 			break;
 	}
 
@@ -211,7 +204,7 @@ function select_member($mission,$user_count){
 	$user_9 = array(3,4,4,5,5);
 	$user_10 = array(3,4,4,5,5);
 	$get_select_member = array($user_5,$user_6,$user_7,$user_8,$user_9,$user_10);
-	return ($user_count > 4) ? $get_select_member[$user_count - 5][$mission - 1] : 1 ;
+	return ($user_count > 4) ? $get_select_member[$user_count - 5][$mission - 1] : 3 ;
 }
 
 //そのユーザーがリーダーがどうか判定する

@@ -22,11 +22,11 @@ function set_is_mission($room_info){
 	$is_mission = array();
 	if ($room_info['scene'] === "mission"){
 		foreach($room_info['team_member'] as $set_key_user){
-			$is_mission[$set_key_user['name']] = FALSE;   
+			$is_mission[$set_key_user] = FALSE;   
 		}
 
 		foreach($room_info['mission_user'] as $set_key_user){
-			$is_mission[$set_key_user['name']] = TRUE;
+			$is_mission[$set_key_user] = TRUE;
 		}
 	}
 	return $is_mission;
