@@ -159,7 +159,7 @@ if ($room_info['states'] === "prosessing" && isset($_POST['command'])){
 				foreach($_POST['select_user'] as $set_user){
 					$is_team[$set_user] = TRUE;
 				}
-				$room_info['scene'] = "vote";
+				$room_info = set_scene("vote",$room_info);
 				$room_info['team_member'] = $_POST['select_user'];
 				write_room_data($room_info,$room_data);
 				}
@@ -214,7 +214,7 @@ if($room_info['scene'] === "vote"){
 
 		if ($is_team_trust > (count($room_info['users']) / 2)){
 			$room_data = set_log($room_data,"system","warning","red","このチーム(" . implode(",",$room_info['team_member']) . ")は信任されました。");   
-			$room_info['scene'] = "mission";
+			$room_info = set_scene("mission",$room_info);
 		} else {
 			$room_data = set_log($room_data,"system","warning","red","このチーム(" . implode(",",$room_info['team_member']) . ")は不信任にされました。");
 			$room_info['scene'] = "team";

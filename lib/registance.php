@@ -59,6 +59,10 @@ function set_waiting_to_processing($room_info){
 
 }
 
+//
+// 次のシーンが始まるまで初期化しておかなくてはならない一群
+//
+
 function set_scene($target_scene,$room_info){
 	$pre_scene = $room_info['scene'];
 	$room_info['scene'] = $target_scene;
@@ -74,6 +78,9 @@ function set_scene($target_scene,$room_info){
 
 			break;
 		case "vote":
+			break;
+		case "mission":
+			$room_info['vote_user'] = array();
 			break;
 	}
 
