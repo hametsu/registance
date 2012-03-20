@@ -362,11 +362,13 @@ $(function(){
 				switch(resent_log[i]["comd"]){
 				case "say":
 				//echo "<li style='color:".$log_array[2]."'><span class='name'>".$log_array[0].":</span>".$log_array[3]."</li>";
-					$("<li/>").css("color",resent_log[i]["comd"]).css("display","hiddden").html("<span class='name'>" + resent_log[i]["name"] + ":</span>" + resent_log[i]["message"]).fadeIn("slow").prependTo("#show_log");
+					$("<li/>").css("color",resent_log[i]["color"]).css("display","hiddden").html("<span class='name'>" + resent_log[i]["name"] + ":</span>" + resent_log[i]["message"]).fadeIn("slow").prependTo("#show_log");
 					break;
 				case "warning":
-					//$("<li/>").addClass("warning").text(resent_log[i]["message"]).fadeIn("slow").prependTo("#show_log");
-					location.replace(location.href);
+					$("<li/>").addClass("warning").text(resent_log[i]["message"]).fadeIn("slow").prependTo("#show_log");
+					if($("input#say").val() == "") {
+						location.replace(location.href);
+					}	
 					break;
 				case "message":
 					break;
@@ -458,6 +460,7 @@ if(!isset($_SESSION[$room_file])){
 			<input type='submit' value='参加する' />
 			</form>
 			<p style='font-size:75%;text-align:center;'>簡易パスワードは再ログインの為だけに使います。</p>
+			<p style='font-size:75%;text-align:center;'>重要なパスワードを入力しないでください。</p>
 			";
 	if($room_info['states'] == "prosessing"){
 
@@ -467,7 +470,7 @@ if(!isset($_SESSION[$room_file])){
 } else {
 	echo "
 		<form action='./show.php?file=$room_file' method='POST'>
-		$user_name <input type='textarea' name='say'style='width:80%' /><br />";
+		$user_name <input type='textarea' name='say'style='width:80%' id='say' /><br />";
 
 	$color_list = array("black","maroon","purple","green","olive","navy","teal");
 
