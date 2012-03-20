@@ -26,6 +26,7 @@ $room_info = init_room_data($room_data,$room_file);
 $room_info['file'] = $_GET['file'];
 
 session_start();
+
 //---------------------------------
 //参加者が現れたときの処理
 //
@@ -318,6 +319,13 @@ if(isset($_SESSION[$room_file])){
 		}
 		 */
 		$room_data = set_log($room_data,$user_name,"say",$_POST['color'],$_POST['say']);
+
+		$_tempSESSION = $_SESSION;
+		session_destroy();
+		session_start();
+		$_SESSION = $_tempSESSION;
+		$_SESSION["name$room_file"] = $user_name;
+		$_SESSION[$room_file] = TRUE;
 		$_SESSION["color$room_file"] = $_POST['color'];
 
 		$exsist_user = FALSE;
@@ -473,10 +481,9 @@ if(!isset($_SESSION[$room_file])){
 		$user_name <input type='textarea' name='say'style='width:80%' id='say' /><br />";
 
 	$color_list = array("black","maroon","purple","green","olive","navy","teal");
-
 	foreach ($color_list as $color_item){
 		echo "<input type='radio' name='color' value='$color_item'";
-		if($_SESSION["color$room_file"] === $color_item){
+		if($_SESSION["color" . $room_info['file']] === $color_item){
 			echo " checked";
 		}
 
