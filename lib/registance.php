@@ -63,7 +63,12 @@ function set_scene($target_scene,$room_info){
 	$pre_scene = $room_info['scene'];
 	$room_info['scene'] = $target_scene;
 	switch($target_scene){
-		case "team":
+	case "team":
+			if ($room_info['not_leader'][0] === "") {
+				foreach ($room_info['users'] as $user_item){
+					array_push($room_info['not_leader'],$user_item['name']);
+				}
+			}
 			$result = elect_leader($room_info['not_leader']);
 			$room_info['now_leader'] = $result[0];
 			$room_info['not_leader'] = $result[1];

@@ -108,8 +108,8 @@ if (($room_info['states'] === "waiting")  && (count($room_info['users']) >= $roo
 	reflesh_state($room_info,"prosessing",TRUE);
 	$room_info["states"] = "prosessing";
 	$room_info = set_waiting_to_processing($room_info);
-
 	$room_info = set_scene("team",$room_info);
+	$room_data = set_log($room_data,"system","warning","red","【" . $room_info['now_leader'] . "】が、リーダーとして選出されました。");
 	write_room_data($room_info,$room_data);
 
 }
@@ -215,10 +215,10 @@ if($room_info['scene'] === "vote"){
 		$room_info['vote_user'] = array();
 
 		if ($is_team_trust > (count($room_info['users']) / 2)){
-			$room_data = set_log($room_data,"system","warning","red","このチーム(" . implode(",",$room_info['team_member']) . ")は信任されました。");   
+			$room_data = set_log($room_data,"system","warning","red","【" . $room_info['now_leader'] . "】が選んだチーム(" . implode("、",$room_info['team_member']) . ")は信任されました。");   
 			$room_info = set_scene("mission",$room_info);
 		} else {
-			$room_data = set_log($room_data,"system","warning","red","このチーム(" . implode(",",$room_info['team_member']) . ")は不信任にされました。");
+			$room_data = set_log($room_data,"system","warning","red","【" . $room_info['now_leader'] . "】が選んだチーム(" . implode("、",$room_info['team_member']) . ")は不信任にされました。");
 			$room_info['scene'] = "team";
 			$room_info['team_member'] = array();
 			
@@ -236,7 +236,9 @@ if($room_info['scene'] === "vote"){
 			$room_info['now_leader'] = $result[0];
 			$room_info['not_leader'] = $result[1];
 			$is_browse_leader   = is_your_leader($room_info,$_SESSION);
-			
+
+			$room_data = set_log($room_data,"system","warning","red","【" . $room_info['now_leader'] . "】が、リーダーとして選出されました。");
+
 		}
 		write_room_data($room_info,$room_data);
 	}        
@@ -265,6 +267,7 @@ if($room_info['scene'] === "mission"
 		//Missionを初期化する
 		$room_info = set_scene("team",$room_info);
 		$is_team = set_team_list($room_info);
+		$room_data = set_log($room_data,"system","warning","red","【" . $room_info['now_leader'] . "】が、リーダーとして選出されました。");
 		
 		//リーダーの決定
 		//デバック用の代入
@@ -303,6 +306,7 @@ if ($count_success >= 3 || $count_not_success >= 3){
 		$save_data = "やりましたね！無事、レジスタンスを妨害し、【スパイ側の勝利】です。";
 	}
 	$room_data = set_log($room_data,"system","warning","red",$save_data);
+	$room_data = set_log($room_data,"system","warning","red","今回は、【" . implode("、",$room_info['userrole']) . "】の方々がスパイでした。おつかれさま！");
 	write_room_data($room_info,$room_data);
 }
 }
