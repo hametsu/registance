@@ -64,14 +64,7 @@ function set_scene($target_scene,$room_info){
 	$room_info['scene'] = $target_scene;
 	switch($target_scene){
 	case "team":
-			if ($room_info['not_leader'][0] === "") {
-				foreach ($room_info['users'] as $user_item){
-					array_push($room_info['not_leader'],$user_item['name']);
-				}
-			}
-			$result = elect_leader($room_info['not_leader']);
-			$room_info['now_leader'] = $result[0];
-			$room_info['not_leader'] = $result[1];
+			$room_info = elect_leader($room_info);
 			$room_info['mission'] = $pre_scene == "mission" ? $room_info['mission'] + 1 : $room_info['mission'];
 			$room_info['team_member'] = array();
 			$room_info['mission_user'] = array();
@@ -162,17 +155,22 @@ foreach($victory_point as $victory_point_item){
 	} elseif ($victory_point_item === "spy") {
 
 		$count_not_success ++;
-
 	}
 
 }
 return array("success" => $count_success, "not_success" => $count_not_success);
 }
 
-function elect_leader($member){
-	shuffle($member);
-	$get_leader = array_shift($member);
-	return array($get_leader,$member);
+function elect_leader($room_info){
+	if ($room_info['not_leader'][0] === "") {
+		$room_info['not_leader'] = array();
+		foreach ($room_info['users'] as $user_item){
+			array_push($room_info['not_leader'],$user_item['name']);
+		}
+	}
+	shuffle($room_info['not_leader']);
+	$room_info['now_leader'] = array_shift($room_info['not_leader']);
+	return $room_info;
 }
 
 

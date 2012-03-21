@@ -215,6 +215,20 @@ class RegistanceTest extends PHPUnit_Framework_TestCase
 
 	}
 
+	/**
+	 * @depends test_init_room_data
+	 */
+
+	public function test_elect_leader($room_info){
+
+		$room_info = elect_leader($room_info);
+		$this->assertSame(count($room_info['not_leader']),1);
+		$room_info['not_leader'] = array("");
+		$room_info = elect_leader($room_info);
+		$this->assertSame(count($room_info['not_leader']),2);
+
+	}
+
 }
 
 
