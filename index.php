@@ -64,7 +64,6 @@ if ($room_exist){
 	<p>部屋名 : <input type="textarea" name="room_name"/></p>
 	<p>参加者の指定 :
 	<select name="people">
-		<option value="3">3</option>
 		<option value="5">5</option>
 		<option value="6">6</option>
 	    <option value="7">7</option>
