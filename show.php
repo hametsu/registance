@@ -507,6 +507,39 @@ echo "<li id='sucess'>成功:" . $count_success . "</li>";
 echo "<li id='falsed'>失敗:"  . $count_not_success . "</li>";
 echo "</ul>";
 ?>
+    </div>
+    <div id="log">
+    <h2>ログ</h2>
+    <ul id="show_log">
+<?php
+if(!isset($room_data[16])){
+	echo "<li>まだ何も発言されていません。</li>";
+} else {
+	$room_log = array_splice($room_data,16);
+	foreach($room_log as $log_line){
+		$log_array = explode(",",$log_line);
+		switch($log_array[1]){
+		case "say":
+			echo "<li style='color:".$log_array[2]."'><span class='name'>".$log_array[0].":</span>".$log_array[3]."</li>";
+			break;
+		case "spysay":
+			if ($is_your_spy){
+				echo "<li style='color:".$log_array[2]."'><span class='name'>".$log_array[0]." (スパイに向けて) :</span>".$log_array[3]."</li>";
+			}    
+			break;
+		case "warning":
+			echo "<li class='warning'>" . $log_array[3] . "</li>";
+			break;
+		case "message":
+			echo "<li class='message'>" . $log_array[3] . "</li>";
+			break;
+		}
+	}
+}
+?>
+    </ul>
+    </div>
+	<div id="sanka_list">
     <h2>参加者たち</h2>
     <ul class='users'>
 <?php 
@@ -575,39 +608,8 @@ case "end":
 }
 ?>
     </ul>
+	</div>
 
-    </div>
-    <div id="log">
-    <h2>ログ</h2>
-    <ul id="show_log">
-<?php
-if(!isset($room_data[16])){
-	echo "<li>まだ何も発言されていません。</li>";
-} else {
-	$room_log = array_splice($room_data,16);
-	foreach($room_log as $log_line){
-		$log_array = explode(",",$log_line);
-		switch($log_array[1]){
-		case "say":
-			echo "<li style='color:".$log_array[2]."'><span class='name'>".$log_array[0].":</span>".$log_array[3]."</li>";
-			break;
-		case "spysay":
-			if ($is_your_spy){
-				echo "<li style='color:".$log_array[2]."'><span class='name'>".$log_array[0]." (スパイに向けて) :</span>".$log_array[3]."</li>";
-			}    
-			break;
-		case "warning":
-			echo "<li class='warning'>" . $log_array[3] . "</li>";
-			break;
-		case "message":
-			echo "<li class='message'>" . $log_array[3] . "</li>";
-			break;
-		}
-	}
-}
-?>
-    </ul>
-    </div>
 <!-- END MAIN -->
 </div>
 </body>

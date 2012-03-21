@@ -38,7 +38,7 @@ html,body {
     border-bottom:5px solid #D9D926;
 }
 
-#header h2{
+#sanka_list h2,#header h2{
     color:#FFF;
     background-color:#66998C;
     border-top   :5px solid #D9D926;
@@ -189,3 +189,17 @@ span.name{
     font-weight: bold;
 }
 
+#sanka_list{
+	border:5px solid #D9D926;
+	position:absolute;
+	background-color:white;
+	margin:10px;
+	margin-top:20px;
+	right:0px;
+	top:0px;
+
+}
+
+#sanka_list ul{
+	list-style-type:none;
+}
