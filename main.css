@@ -202,4 +202,11 @@ span.name{
 
 #sanka_list ul{
 	list-style-type:none;
+	line-height:1.5em;
+}
+
+#sanka_list ul li{
+	padding-bottom:5px;
+	padding-top:5px;
+	border-bottom:2px solid #DDD;
 }
