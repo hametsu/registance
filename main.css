@@ -112,11 +112,12 @@ html,body {
     height:auto;
     background-color:#EEE;
     margin-left:30%;
-    margin-right:20px;
+    margin-right:180px;
     border-right:5px solid #A3C2BA;
     border-left:5px solid #A3C2BA;
     padding-bottom:20px;
     border-bottom:5px solid #A3C2BA;
+
 }
 
 #log h2{
@@ -197,17 +198,20 @@ span.name{
 	margin-top:20px;
 	right:0px;
 	top:0px;
+	width:150px;
 
 }
 
 #sanka_list ul{
+	font-size:12px;
 	list-style-type:none;
 	line-height:1.5em;
-	text-indent:0px;
+	text-indent:1px;
 }
 
 #sanka_list ul li{
-	text-indent:0px;
+	font-size:12px;
+	text-indent:1px;
 	padding:10px;
 	border-bottom:2px solid #DDD;
 }

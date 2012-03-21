@@ -221,10 +221,22 @@ if($room_info['scene'] === "vote"){
 			$room_data = set_log($room_data,"system","warning","red","このチーム(" . implode(",",$room_info['team_member']) . ")は不信任にされました。");
 			$room_info['scene'] = "team";
 			$room_info['team_member'] = array();
+			
 			foreach($room_info['users'] as $set_key_user){
 				$is_team[$set_key_user['name']] = FALSE;
 			}
 
+			if ($room_info['not_leader'][0] === "") {
+				foreach ($room_info['users'] as $user_item){
+					array_push($room_info['not_leader'],$user_item['name']);
+				}
+			}
+			
+			$result = elect_leader($room_info['not_leader']);
+			$room_info['now_leader'] = $result[0];
+			$room_info['not_leader'] = $result[1];
+			$is_browse_leader   = is_your_leader($room_info,$_SESSION);
+			
 		}
 		write_room_data($room_info,$room_data);
 	}        
