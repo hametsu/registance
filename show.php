@@ -395,6 +395,7 @@ $(function(){
 					}	
 					break;
 				case "message":
+					$("<li/>").addClass("message").text(resent_log[i]["message"]).fadeIn("slow").prependTo("#show_log");
 					break;
 					}
 			//END FOR
