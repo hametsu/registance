@@ -74,19 +74,19 @@ html,body {
     border-bottom:2px solid #DDD; 
 }
 
-#header ul.users li span.leader{
+#sanka_list ul.users li span.leader{
     color:#737326;
     background-color:#FFC;
     font-weight:bold;
 }
 
-#header ul.users li span.spy{
+#sanka_list ul.users li span.spy{
     color:#733926;
     background-color:#F0BAA8;
     font-weight:bold;
 }
 
-#header ul.users li span.team{
+#sanka_list ul.users li span.team{
     font-weight:bold;
 }
 
@@ -203,10 +203,11 @@ span.name{
 #sanka_list ul{
 	list-style-type:none;
 	line-height:1.5em;
+	text-indent:0px;
 }
 
 #sanka_list ul li{
-	padding-bottom:5px;
-	padding-top:5px;
+	text-indent:0px;
+	padding:10px;
 	border-bottom:2px solid #DDD;
 }
