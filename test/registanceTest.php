@@ -1,6 +1,7 @@
 <?php
 require_once "../lib/registance.php";
 require_once "../lib/setlist.php";
+require_once "../lib/eseUtil.php";
 
 class RegistanceTest extends PHPUnit_Framework_TestCase
 {
