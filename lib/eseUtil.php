@@ -38,12 +38,8 @@ function rewrite_room_dat($set_state) {
 	ftruncate($file_access, 0);
 	foreach($room_list as $line){
 		$line_array = explode(",",$line);
-		if($room_inform['file'] === $line_array[0]){
-			$line = $room_inform['file']. "," . $room_inform['name'] . "," . $set_state . "," . $room_inform['people'] . "\n";
-		}
 		fwrite($file_access,$line);
-	}
-	
+	}	
 	flock($file_access, LOCK_UN);
 	fclose($file_access);
 }

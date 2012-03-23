@@ -37,7 +37,7 @@ class RoomInfo extends Singleton {
 	}
 
 	public function count_user() {
-		return count($this->get_user_array());
+		return count($this->get_users_array());
 	}
 
 	public function get_users() {
@@ -57,7 +57,7 @@ class RoomInfo extends Singleton {
 	}
 
 	public function add_user($username,$pass){
-		$this->room_data[2] = trim($this->room_data[2]) . ",$username,$pass\n";
+		$this->room_data[2] = $this->room_data[2] === "\n" ? "$username,$pass\n" : trim($this->room_data[2]) . ",$username,$pass\n";
 		$adduser = new RoomUser($username,$pass);
 		array_push($this->room_user,$adduser);
 	}
@@ -72,9 +72,9 @@ class RoomInfo extends Singleton {
 	}
 
 	public function is_leader($username) {
-	
+
 		return ($this->get_states() === "processing" &&
-				$this->get_now_leader() === $user_name);
+				$this->get_now_leader() === $username);
 	
 	}
 
@@ -90,7 +90,7 @@ class RoomInfo extends Singleton {
 		if($this->room_data[12] === "\n"){
 			$this->room_data[12] = "$name,$vote\n";
 		} else {
-			$this->room_data[12] = trim($this->room_data[12]) . "$name,$vote\n";
+			$this->room_data[12] = trim($this->room_data[12]) . ",$name,$vote\n";
 		}
 	}
 
@@ -121,6 +121,14 @@ class RoomInfo extends Singleton {
 			}
 		}
 		return $counter;
+	}
+
+	public function reset_mission_user(){
+		$max = count($this->room_user);
+		for($i = 0;$i < $max;$i++){
+			$this->room_user[$i]->mission = NULL;
+		}
+		$this->room_data[12] = "\n";
 	}
 
 	//method for vote_user
@@ -225,7 +233,7 @@ class RoomInfo extends Singleton {
 			$push_user = array_shift($get_user);
 			array_push($set_user,$push_user);
 		}
-		$this->room_data[3] = implode(",",$set_user);
+		$this->room_data[3] = implode(",",$set_user)."\n";
 	}
 
 	public function get_mission_victory() {
@@ -272,6 +280,7 @@ class RoomInfo extends Singleton {
 			$this->reset_vote_user();
 			break;
 		case "vote":
+			$this->reset_mission_user();
 			break;
 		case "mission":
 			break;
@@ -288,7 +297,7 @@ class RoomInfo extends Singleton {
 	}
 
 	public function plus_mission() {
-		$this->set_mission($this->get_mission() + 1);
+		$this->set_mission_no($this->get_mission_no() + 1);
 	}
 
 	public function get_now_leader() {
@@ -303,7 +312,7 @@ class RoomInfo extends Singleton {
 		}
 		shuffle($target_not_leader);
 		$this->room_data[7] = array_shift($target_not_leader) . "\n";
-		$this->room_data[8] = implode(",",$target_not_leader);
+		$this->room_data[8] = implode(",",$target_not_leader) . "\n";
 	}
 
 	public function get_not_leader() {
@@ -311,8 +320,7 @@ class RoomInfo extends Singleton {
 	}
 
 	public function reset_not_leader() {
-		$not_leader_array = $this->get_users_array();
-		$this->room_data[8] = implode(",",$not_leader_array) . "\n";
+		$this->room_data[8] = implode(",",$this->get_users_array()) . "\n";
 	}
 
 	public function debug_set_not_leader($set_array) {
@@ -394,6 +402,7 @@ class RoomInfo extends Singleton {
 	public function set_waiting_to_processing() {
 
 		$this->set_mission_no(1);
+		$this->set_states("processing");
 		$this->reset_not_leader();
 		$this->set_spylist();
 	}
@@ -410,7 +419,7 @@ class RoomInfo extends Singleton {
 		//$room_infoと$room_dataを同期する
 		$file_access = fopen($this->file,"w");
 		flock($file_access,LOCK_EX);
-		foreach($room_data as $lines){
+		foreach($this->room_data as $lines){
 			fwrite($file_access,$lines);
 		}
 		flock($file_access,LOCK_UN);
@@ -432,10 +441,10 @@ class RoomInfo extends Singleton {
 		case "waiting":
 			return "待機中";
 			break;
-		case "prosessing":
+		case "processing":
 		 $return_string = "";
-		 $return_string .= "Mission #" . $roominfo->get_mission_no() . " - ";
-		switch ($room_info->get_scene()){
+		 $return_string .= "Mission" . $this->get_mission_no() . " - ";
+		switch ($this->get_scene()){
 			case "team":
 				$return_string .= "チームを編成します。";
 				break;

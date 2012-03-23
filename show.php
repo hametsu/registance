@@ -16,7 +16,12 @@ require_once './lib/room_info.php';
 
 $room_file = $_GET['file'];
 $room_file = str_replace("/","",$room_file);
-
+/*
+$room_file = "1332508800.dat";
+$_SESSION = array("name" . "data/" . $room_file => "opera");
+$_POST = array("command" => "select_member",
+			   "select_user" => array("firefox","chrome","opera"));
+ */
 if (!file_exists("data/$room_file") && !isset($_GET['file'])){
 	die("そのようなファイルは存在しません");
 }
@@ -42,7 +47,7 @@ if($roominfo->get_states() === "waiting"){
 			if ($is_already_user->pass !== $_POST['pass']){
 				die("名前とパスワードが一致しません");
 			} else {
-				$_SESSION["name$room_file"] = $_POST['name'];
+				$_SESSION["name" . $roominfo->get_filename()] = $_POST['name'];
 				$_SESSION[$room_file] = TRUE;
 				}
 			}
@@ -50,8 +55,8 @@ if($roominfo->get_states() === "waiting"){
 				die ("パスワードが入力されていません。");
 			}
 		if ($is_already_user === FALSE){
-		//セッションの保存
-		$_SESSION["name$room_file"] = $_POST['name'];
+			//セッションの保存
+		$_SESSION["name" . $roominfo->get_filename()] = $_POST['name'];
 		$_SESSION[$room_file] = TRUE;
 		
 		$save_data = $_POST['name']."さんが入室しました。";
@@ -59,15 +64,18 @@ if($roominfo->get_states() === "waiting"){
 		$roominfo->add_user($_POST['name'],$_POST['pass']);	
 		$roominfo->add_log("system","warning","red",$save_data);
 
-		write_room_data($room_info,$room_data);
+		$roominfo->write_room_data();
 		}
 	}
 } else {
-		if($is_alredy_user !== FALSE){
-			if($is_alredy_user->pass !== $_POST['pass']){
+		if($is_already_user !== FALSE){
+			if($is_already_user->pass !== $_POST['pass']){
 				die("名前とパスワードが一致しません");
-			} else {
-				$_SESSION['name' . $room_file] = $_POST['name'];
+			} elseif ($is_already_user->pass === $_POST['pass']
+				&& $is_already_user !== FALSE
+				&& $_POST['pass'] !== NULL)
+			{
+				$_SESSION['name' . $roomfile->get_filename() ] = $_POST['name'];
 				$_SESSION[$room_file] = TRUE;
 			}
 		}
@@ -91,7 +99,7 @@ if (($roominfo->get_states() === "waiting")  && (count($roominfo->get_users()) >
 	rewrite_room_dat("prosessing");
 	$roominfo->set_waiting_to_processing();
 	$roominfo->set_scene("team");
-	$roominfo->add_log("system","warning","red","【" . $room_info['now_leader'] . "】が、リーダーとして選出されました。");
+	$roominfo->add_log("system","warning","red","【" . $roominfo->get_now_leader() . "】が、リーダーとして選出されました。");
 	$roominfo->write_room_data();
 }
 
@@ -101,23 +109,7 @@ if (($roominfo->get_states() === "waiting")  && (count($roominfo->get_users()) >
 $is_your_connection = $roominfo->is_user($_SESSION["name" . $roominfo->get_filename()]);
 $is_browse_leader   = $roominfo->is_leader($_SESSION["name" . $roominfo->get_filename()]);
 
-//スパイリストをセットする
-$is_your_spy = FALSE;
-$is_spy = array();
-if ($room_info['states'] === "prosessing" or $room_info['states'] === "end"){
-	foreach($room_info['users'] as $set_key_user ){
-		$is_spy[$set_key_user['name']] = FALSE;
-	}
-
-	foreach($room_info['userrole'] as $set_key_user ){
-		$is_spy[$set_key_user] = TRUE;
-	}
-
-	if($is_spy[$_SESSION["name" . $room_info['file']]]) {
-		$is_your_spy = TRUE;
-	}
-}
-
+$is_your_spy = $roominfo->is_spy($_SESSION["name" . $roominfo->get_filename()]);
 //
 // いらなくなる予定
 // (動作次第、削除を行う) 
@@ -128,17 +120,17 @@ if ($room_info['states'] === "prosessing" or $room_info['states'] === "end"){
 
 
 //コマンドによって挙動を変更する
-if ($roominfo->get_states() === "prosessing" 
+if ($roominfo->get_states() === "processing" 
 	&& isset($_POST['command'])){
 
-	switch($room_info->get_scene()){
+	switch($roominfo->get_scene()){
 	case "team":
 		if ($is_browse_leader 
 			&& ($_POST['command'] === 'select_member') 
-			&& (count($_POST['select_user']) === $this->get_need_team_member())){
+			&& (count($_POST['select_user']) === $roominfo->get_need_team_member())){
 
 				//チームを選択する
-				$save_data = $_SESSION["name$room_file"] . "さんは、【" . implode("、",$_POST['select_user']) . "】を、チームとして選びました。";
+				$save_data = $_SESSION["name" . $roominfo->get_filename()] . "さんは、【" . implode("、",$_POST['select_user']) . "】を、チームとして選びました。";
 				$roominfo->add_log("system","warning","red",$save_data);
 				$roominfo->set_scene("vote");
 				$roominfo->set_team_member($_POST['select_user']);
@@ -148,7 +140,8 @@ if ($roominfo->get_states() === "prosessing"
 	case "vote":
 		if($_POST['command'] === "vote"
 			&& $is_your_connection){
-				if($roominfo->get_user_vote($_SESSION["name".$roominfo->get_filename()]) === FALSE){
+				if($roominfo->get_user_vote($_SESSION["name".$roominfo->get_filename()]) !== FALSE
+				&& $roominfo->get_user_vote($_SESSION["name". $roominfo->get_filename()]) === NULL){
 					$roominfo->set_vote_user($_SESSION["name".$roominfo->get_filename()],$_POST['vote']);
 					$roominfo->write_room_data($room_info,$room_data);
 				}
@@ -158,7 +151,7 @@ if ($roominfo->get_states() === "prosessing"
 	case "mission":
 		if($_POST['command'] === "mission"
 			&& $is_your_connection
-			&& $roominfo->get_user_mission($_SESSION['name'.$roominfo->get_filename()]) === FALSE
+			&& $roominfo->get_user_mission($_SESSION['name'.$roominfo->get_filename()]) === NULL
 			&& $roominfo->is_team_member($_SESSION['name' . $roominfo->get_filename()])){
 				$roominfo->set_mission_user($_SESSION['name' . $roominfo->get_filename()],$_POST['vote']);
 				$roominfo->write_room_data();
@@ -173,7 +166,7 @@ if($roominfo->get_scene() === "vote"){
 		$is_team_trust = 0;
 		//投票者の統計をログに流す
 		foreach($roominfo->get_users() as $get_user){
-			$save_data = $get_user[0] . "さんは、【" . ($get_user->vote === "trust" ? "信任" : "不信任") . "】に投票しました。";
+			$save_data = $get_user->username . "さんは、【" . ($get_user->vote === "trust" ? "信任" : "不信任") . "】に投票しました。";
 			if ($get_user->vote === "trust"){
 				$is_team_trust ++;
 			}
@@ -183,15 +176,14 @@ if($roominfo->get_scene() === "vote"){
 		//投票者の初期化
 		$roominfo->reset_vote_user();
 
-		if ($is_team_trust > (count($room_info['users']) / 2)){
-			$roominfo->add_log("system","warning","red","【" . $room_info['now_leader'] . "】が選んだチーム(" . implode("、",$roominfo->get_team_member()) . ")は信任されました。");   
+		if ($is_team_trust > (count($roominfo->get_users_array()) / 2)){
+			$roominfo->add_log("system","warning","red","【" . $roominfo->get_now_leader() . "】が選んだチーム(" . implode("、",$roominfo->get_team_member()) . ")は信任されました。");   
 			$roominfo->set_scene("mission");
 		} else {
-			$roominfo->add_log($room_data,"system","warning","red","【" . $room_info['now_leader'] . "】が選んだチーム(" . implode("、",$room_info['team_member']) . ")は不信任にされました。");
+			$roominfo->add_log("system","warning","red","【" . $roominfo->get_now_leader() . "】が選んだチーム(" . implode("、",$roominfo->get_team_member()) . ")は不信任にされました。");
 			
 			$roominfo->set_scene("team");
 			$roominfo->reset_team_member();
-			$roominfo->set_now_leader();
 
 			$is_browse_leader   = $roominfo->is_leader($_SESSION["name" . $roominfo->get_filename()]);
 
@@ -205,7 +197,7 @@ if($roominfo->get_scene() === "vote"){
 //チームメンバーが全員ミッションを選んだら、
 //ミッション成功判定を行う
 if($roominfo->get_scene() === "mission"
-	&& $roominfo->count_mission() >= $roominfo->count_team_member() ){
+	&& $roominfo->count_mission_user() >= $roominfo->count_team_member() ){
 		//失敗かどうかを判定する    
 		$count_falsed = $roominfo->count_failure();    
 		
@@ -240,7 +232,7 @@ $count_success = $result['registance'];
 $count_not_success = $result["spy"];
 
 //もし、ゲームの終了条件なら、ゲームを終了する
-if ($roominfo->get_states() === "prosessing"){
+if ($roominfo->get_states() === "processing"){
 	if ($count_success >= 3 || $count_not_success >= 3){
 		rewrite_room_dat("end");
 		$roominfo->set_states("end");
@@ -267,7 +259,7 @@ if ($roominfo->get_states() === "prosessing"){
 //
 
 if(isset($_SESSION[$room_file])){
-	$user_name = $_SESSION["name$room_file"];
+	$user_name = $_SESSION["name". $roominfo->get_filename()];
 	if(isset($_POST['say']) && $_POST['say'] !== ""){
 		$_POST['say'] = str_replace(",","",$_POST['say']);
 		if(!isset($_POST['color'])){
@@ -288,7 +280,7 @@ if(isset($_SESSION[$room_file])){
 		session_destroy();
 		session_start();
 		$_SESSION = $_tempSESSION;
-		$_SESSION["name$room_file"] = $user_name;
+		$_SESSION["name" . $roominfo->get_filename()] = $user_name;
 		$_SESSION[$room_file] = TRUE;
 		$_SESSION["color$room_file"] = $_POST['color'];
 
@@ -299,7 +291,7 @@ if(isset($_SESSION[$room_file])){
 			die("不正な操作 - 参加していないユーザーから書き込もうとしました");
 		}
 
-		$rooominfo->write_room_data();
+		$roominfo->write_room_data();
 	}
 }
 
@@ -318,7 +310,7 @@ echo $roominfo->get_name() . " - レジスタンス・チャット";
 
 var reflesh_time = new Date/1e3|0 ;
 <?php
-echo "var file_name =\"" . $roominfo->get_filename() . "\";\n";
+echo "var file_name =\"" . $room_file . "\";\n";
 ?>
 $(function(){
 		setInterval(function(){
@@ -358,7 +350,7 @@ $(function(){
 	<h2> <?php 
 //以下、message.phpに移行
 	echo $roominfo->get_room_states_message();
-	?>
+?>
     </h2>
 
 <?php
@@ -369,11 +361,12 @@ if($roominfo->get_states() === "waiting"){
 if($is_your_connection){
 	switch($roominfo->get_scene()){
 	case "vote":
-		if($roominfo->get_user_vote($_SESSION["name" . $roominfo->get_filename()]) !== FALSE){
+		if($roominfo->get_user_vote($_SESSION["name" . $roominfo->get_filename()]) !== FALSE
+		&& $roominfo->get_user_vote($_SESSION["name" . $roominfo->get_filename()]) !== NULL){
 			echo "<p>あなたは既に投票しています。<br />(現在、" . $roominfo->count_vote() . "人が投票しています)</p>";
 		} else {
 			echo "<p>
-				<form action='./show.php?file=" . $roominfo->get_filename()
+				<form action='./show.php?file=" . $room_file
 				. "' method='POST'>
 				<input type='hidden' name='command' value='vote' />
 				<input type='radio' name='vote' value='trust'/>信任
@@ -396,7 +389,7 @@ if($is_your_connection){
 					";
 				if ($roominfo->is_spy($_SESSION["name" . $roominfo->get_filename() ])){                        
 					echo "
-						<input type='radio' name='vote' value='falsed' /> 失敗
+						<input type='radio' name='vote' value='failure' /> 失敗
 						";
 				}
 				echo "<input type='submit' name='button_vote'value='遂行' />
@@ -421,7 +414,7 @@ echo "<li><a href='./show.php?file=" . $room_file . "'>更新する</a></li>";
     </ul>
 
 <?php
-if(!isset($_SESSION[$roominfo->get_filename()])){
+if(!isset($_SESSION[$room_file])){
 		echo "
 			<form action='./show.php?file=$room_file' method='POST'>
 			名前：<input type='textarea' name='name'/><br />
@@ -513,11 +506,10 @@ case "waiting":
 		echo "<li>" . $show_user->username . "</li>";
 	}
 	break;
-case "prosessing":
-	if ($roominfo->get_scene()=== "team" && $is_browse_leader){
+case "processing":
+	if ($roominfo->get_scene() === "team" && $is_browse_leader){
 		echo "<form action='./show.php?file=$room_file' method='POST'>
 			<input type='hidden' name='command' value='select_member' />";
-
 		foreach($roominfo->get_users() as $show_user){
 			echo "<li><input type='CHECKBOX' name='select_user[]' value='" . $show_user->username . "' />";
 
@@ -529,7 +521,7 @@ case "prosessing":
 				echo "<span class='spy'>【スパイ】</span>";
 			}
 
-			if($roominfo->is_team($show_user->username)){
+			if($roominfo->is_team_member($show_user->username)){
 				echo "<span class='team'>【チーム】</span>";
 			}
 
@@ -539,9 +531,8 @@ case "prosessing":
 		echo "</form>";  
 		echo "<p>" . $roominfo->get_need_team_member() . "人選んでください。</p>";
 	} else {    
-		foreach($room_info['users'] as $show_user){
+		foreach($roominfo->get_users() as $show_user){
 			echo "<li>";
-
 			if($show_user->username === $roominfo->get_now_leader()){
 				echo "<span class='leader'>【リーダー】</span>";
 			}
@@ -549,7 +540,8 @@ case "prosessing":
 			if($is_your_spy && $roominfo->is_spy($show_user->username)){
 				echo "<span class='spy'>【スパイ】</span>";
 			}
-			if($roominfo->is_team($show_user->username)){
+
+			if($roominfo->is_team_member($show_user->username)){
 				echo "<span class='team'>【チーム】</span>";
 			}
 
