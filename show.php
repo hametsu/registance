@@ -96,7 +96,7 @@ if (($roominfo->get_states() === "waiting")  && (count($roominfo->get_users()) >
 	//システムの初期化
 	//
 	//----------------------------------
-	rewrite_room_dat("prosessing");
+	rewrite_room_dat("processing",$room_file);
 	$roominfo->set_waiting_to_processing();
 	$roominfo->set_scene("team");
 	$roominfo->add_log("system","warning","red","【" . $roominfo->get_now_leader() . "】が、リーダーとして選出されました。");
@@ -204,11 +204,15 @@ if($roominfo->get_scene() === "mission"
 		if ($count_falsed === 0){
 			$save_data = "このミッションは【成功】しました。";
 			$roominfo->add_victory_point("registance");
+			$roominfo->set_victory_history($roominfo->get_team_member(),$roominfo->get_now_leader(),"registance");
 		} else {
 			$save_data = "このミッションは、" . $count_falsed . "人の「失敗」への投票で、【失敗】しました。";
 			$roominfo->add_victory_point("spy");
+			$roominfo->set_victory_history($roominfo->get_team_member(),$roominfo->get_now_leader(),"spy");
 		}
 		$roominfo->add_log("system","warning","red",$save_data);
+		
+		//履歴をセットする
 
 		//Missionを初期化する
 		$roominfo->set_scene("team");
@@ -234,7 +238,7 @@ $count_not_success = $result["spy"];
 //もし、ゲームの終了条件なら、ゲームを終了する
 if ($roominfo->get_states() === "processing"){
 	if ($count_success >= 3 || $count_not_success >= 3){
-		rewrite_room_dat("end");
+		rewrite_room_dat("end",$room_file);
 		$roominfo->set_states("end");
 		$roominfo->set_scene("end");
 	if ($count_success >= 3){
@@ -309,35 +313,54 @@ echo $roominfo->get_name() . " - レジスタンス・チャット";
 <script type="text/javascript">
 
 var reflesh_time = new Date/1e3|0 ;
+var now_reflash_time = reflesh_time + 0;
+
 <?php
 echo "var file_name =\"" . $room_file . "\";\n";
+echo "var post_data =\"" . $_POST['say'] . "\";\n";
 ?>
 $(function(){
-		setInterval(function(){
-				$.getJSON('./ajaxpush.php?file=' + file_name + '&time=' + reflesh_time,
+	setInterval(function(){
+		now_reflesh_time = reflesh_time + 0;
+			$.getJSON('./ajaxpush.php?file=' + file_name + '&time=' + now_reflesh_time,
 					function(resent_log){
+			if(post_data !== ""){
+				for(var i = 0,max =resent_log.length; i < max;i++){
+					if (resent_log[i]["message"] === post_data){
+						now_reflesh_time = resent_log[i]["time"];
+						post_data = "";
+					}
+				}
+			}
 			if(resent_log.length !== 0){
 			for (var i = 0,max = resent_log.length;i < max; i++){
+				resent_log[i]["time"] = resent_log[i]["time"];
 				switch(resent_log[i]["comd"]){
 				case "say":
 				//echo "<li style='color:".$log_array[2]."'><span class='name'>".$log_array[0].":</span>".$log_array[3]."</li>";
-					$("<li/>").css("color",resent_log[i]["color"]).css("display","hiddden").html("<span class='name'>" + resent_log[i]["name"] + ":</span>" + resent_log[i]["message"]).fadeIn("slow").prependTo("#show_log");
+					if (resent_log[i]["time"] > now_reflesh_time){
+						$("<li/>").css("color",resent_log[i]["color"]).css("display","hiddden").html("<span class='name'>" + resent_log[i]["name"] + ":</span>" + resent_log[i]["message"]).fadeIn("slow").prependTo("#show_log");
+					}
 					break;
 				case "warning":
-					$("<li/>").addClass("warning").text(resent_log[i]["message"]).fadeIn("slow").prependTo("#show_log");
+					if (resent_log[i]["time"] > now_reflesh_time) {
+						$("<li/>").addClass("warning").text(resent_log[i]["message"]).fadeIn("slow").prependTo("#show_log");
+					}	
 					if($("input#say").val() == "") {
 						location.replace(location.href);
 					}	
 					break;
 				case "message":
-					$("<li/>").addClass("message").text(resent_log[i]["message"]).fadeIn("slow").prependTo("#show_log");
+					if (resent_log[i]["time"] > now_reflesh_time) {
+						$("<li/>").addClass("message").text(resent_log[i]["message"]).fadeIn("slow").prependTo("#show_log");
+					}	
 					break;
 					}
 			//END FOR
 			}
 			}
 		});
-			reflesh_time = new Date/1e3|0;
+				reflesh_time = new Date/1e3|0;
 		},9000);
 		});
 </script>
@@ -461,6 +484,26 @@ echo "<li id='sucess'>成功:" . $count_success . "</li>";
 echo "<li id='falsed'>失敗:"  . $count_not_success . "</li>";
 echo "</ul>";
 ?>
+	<h2>履歴</h2>
+	<ul id="history_list">
+<?php
+if($roominfo->get_mission_no() > 1) {
+	$counter = 1;
+	foreach($roominfo->get_victory_history() as $history_item){
+		echo "<li class='" . $history_item["victory_point"] . "'>";
+		echo "<span class='name'>Mission";
+		echo $counter;
+		echo "</span> <br />【" .  $history_item["team_leader"] . "】が選んだ【";
+		echo implode("、",$history_item["team_member"]) . "】のメンバーは、ミッションを【";
+	    echo $history_item["victory_point"] === "registance" ? "成功" : "失敗";
+		echo "】させました。";
+		echo "</li>";
+		$counter++;
+	}
+	
+	}
+?>
+	</ul>
     </div>
     <div id="log">
     <h2>ログ</h2>
@@ -559,11 +602,37 @@ case "end":
 		echo $show_user->username ."</li>";
 	}
 	break;
-
-
 }
 ?>
     </ul>
+<?php
+
+if ($roominfo->get_states() === "processing") {
+	echo '
+	<h2>スパイの人数</h2>
+	<ul>
+	<li style="border:none;">
+	';
+	echo $roominfo->count_spy();
+	
+	echo '人
+		</li>
+	</ul>
+	<h2>選ばれる人数</h2>
+	<ul>';
+	$counter = 0;
+	foreach($roominfo->get_need_team_array() as $team_number){
+		$counter ++;
+		if ($roominfo->get_mission_no() === $counter) {
+			echo "<li id='now_mission'>";
+		} else {
+			echo "<li>";
+		}
+	echo "M#$counter :: $team_number</li>";
+	}
+}
+?>
+	</ul>
 	</div>
 
 <!-- END MAIN -->

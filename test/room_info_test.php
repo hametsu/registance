@@ -371,4 +371,37 @@ class RoomInfoTest extends PHPUnit_Framework_TestCase
 		$this->assertSame($raw_data[14],"registance,spy,registance,spy\n");
 	}
 
+	/**
+	 * @depends test_loadfile
+	 */
+
+	public function test_set_victory_history($roominfo){
+		$roominfo->set_victory_history(array("User1","User2","User3"),"User5","failure");
+		$raw_data = $roominfo->get_raw_roomdata();
+		$this->assertSame($raw_data[11],"User1,User2,User3,User5,failure\n");
+		$roominfo->set_victory_history(array("User1","User2","User3"),"User4","success");
+		$raw_data = $roominfo->get_raw_roomdata();
+		$this->assertSame($raw_data[11],"User1,User2,User3,User5,failure,User1,User2,User3,User4,success\n");
+
+		return $roominfo;
+	}
+
+	/**
+	 * @depends test_set_victory_history
+	 */
+
+	public function test_get_victory_history($roominfo){
+		$roominfo->set_mission_no(2);
+		$victory_array = $roominfo->get_victory_history();
+		$this->assertSame(count($victory_array),1);
+		$this->assertSame($victory_array[0]["team_member"],array("User1","User2","User3"));
+		$this->assertSame($victory_array[0]["victory_point"],"failure");
+
+		$roominfo->set_mission_no(3);
+		$victory_array = $roominfo->get_victory_history();
+		$this->assertSame(count($victory_array),2);
+		$this->assertSame($victory_array[1]["team_member"],array("User1","User2","User3"));
+		$this->assertSame($victory_array[1]["victory_point"],"success");
+	}
+
 }

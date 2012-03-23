@@ -30,13 +30,18 @@ function reflesh_state($room_inform,$set_state,$reflash_room_list){
 	fclose($file_access);
 }
 
-function rewrite_room_dat($set_state) {
+function rewrite_room_dat($set_state,$filename) {
 	
 	$room_list = eseFile("./data/room.dat");
 	$file_access = fopen("./data/room.dat" , "a");
 	flock($file_access, LOCK_EX);
 	ftruncate($file_access, 0);
 	foreach($room_list as $line){
+		$line_array = explode(",",$line);
+		if($filename === $line_array[0]){
+			$line_array[2] = $set_state;
+			$line = implode(",",$line_array);
+		}
 		$line_array = explode(",",$line);
 		fwrite($file_access,$line);
 	}	

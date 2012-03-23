@@ -202,7 +202,13 @@ span.name{
 
 }
 
+#sanka_list h2{
+	font-size:110%;
+}
+
 #sanka_list ul{
+	margin:0px;
+	padding:5px;
 	font-size:12px;
 	list-style-type:none;
 	line-height:1.5em;
@@ -214,4 +220,46 @@ span.name{
 	text-indent:1px;
 	padding:10px;
 	border-bottom:2px solid #DDD;
+}
+
+#sanka_list ul li#now_mission{
+	background-color:#F9C;
+	border:2px solid #C69;
+    font-weight: bold;
+}
+
+#history_list{
+padding:0px;
+margin:0px;
+}
+
+#history_list li {
+	margin-top:5px;
+	margin-bottom:5px;
+	padding:0px;
+	list-style-position:outside;
+	padding:10px;
+	border-radius:5px;
+	-moz-border-radius:5px;
+	-webkit-border-radius:5px;
+}
+
+#history_list li.spy .name{
+	border-bottom:2px solid #C00;
+
+}
+
+#history_list li.registance .name {
+	border-bottom:2px solid #039;
+}
+
+#history_list li.spy {
+	background-color:#F07070;
+	border:2px solid #C00;
+}
+
+#history_list li.registance {
+	background-color:#70B0F0;
+	border:2px solid #039;
+
 }

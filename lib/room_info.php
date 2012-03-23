@@ -214,8 +214,7 @@ class RoomInfo extends Singleton {
 		}
 		return FALSE;
 	}
-
-	public function set_spylist() {
+	public function count_spy() {
 		$SPY_NUMBER = array (
 			3 => 1,
 			4 => 2,
@@ -225,11 +224,15 @@ class RoomInfo extends Singleton {
 			8 => 3,
 			9 => 3,
 			10 => 4
-			);
+		);
+		return $SPY_NUMBER[count($this->get_users_array())];
+	}
+	
+	public function set_spylist() {
 		$get_user = $this->get_users_array();
 		$set_user = array();
 		shuffle($get_user);
-		for ($i = 0;$i < $SPY_NUMBER[count($this->get_users_array())];$i++){
+		for ($i = 0;$i < $this->count_spy();$i++){
 			$push_user = array_shift($get_user);
 			array_push($set_user,$push_user);
 		}
@@ -352,7 +355,7 @@ class RoomInfo extends Singleton {
 		return count($this->get_team_member());
 	}
 
-	public function get_need_team_member() {
+	public function get_need_team_array() {
 		$user_5 = array(2,3,2,3,3);
 		$user_6 = array(2,3,4,3,4);
 		$user_7 = array(2,3,3,4,4);
@@ -360,11 +363,13 @@ class RoomInfo extends Singleton {
 		$user_9 = array(3,4,4,5,5);
 		$user_10 = array(3,4,4,5,5);
 
-		$get_select_member = array(
-			$user_5,$user_6,$user_7,$user_8,$user_9,$user_10
-		);
-	
-	return (count($this->get_users_array()) > 4) ? $get_select_member[count($this->get_users_array()) - 5][$this->get_mission_no() - 1] : 3 ;
+		$get_select_member = array($user_5,$user_6,$user_7,$user_8,$user_9,$user_10);
+		return (count($this->get_users_array()) > 4) ? $get_select_member[count($this->get_users_array()) - 5 ] : array(3,3,3,3,3);
+	}
+
+	public function get_need_team_member() {
+		$get_select_member = $this->get_need_team_array();	
+	return $get_select_member[$this->get_mission_no() - 1];
 	}
 
 	public function get_victory_point() {
@@ -461,6 +466,30 @@ class RoomInfo extends Singleton {
 			return "終了しました";
 			break;
 		}
+	}
+
+	public function set_victory_history($team_member,$team_leader,$victory_point) {
+		$this->room_data[11] = $this->room_data[11] === "\n" ? implode(",",$team_member) . "," . $team_leader . "," . $victory_point . "\n" : trim($this->room_data[11]) . "," . implode(",",$team_member) . "," . $team_leader . "," . $victory_point . "\n"; 
+	}
+
+	public function get_victory_history() {
+		$result_array = array();
+		$array_point = 0;
+		$team_need_array = $this->get_need_team_array();
+		$raw_array = explode(",",trim($this->room_data[11]));
+		for ($i = 0;$i < $this->get_mission_no() - 1;$i++){
+			$set_array = array("team_member"=>array(),"team_leader"=>NULL,"victory_point" => NULL);
+			for ($j = 0;$j < $team_need_array[$i];$j++) {
+				array_push($set_array["team_member"],$raw_array[$array_point]);
+				$array_point ++;
+			}
+			$set_array["team_leader"] = $raw_array[$array_point];
+			$array_point++;
+			$set_array["victory_point"] = $raw_array[$array_point];
+			$array_point++;
+			array_push($result_array,$set_array);
+		}
+		return $result_array;
 	}
 
 }

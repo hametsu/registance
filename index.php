@@ -21,7 +21,7 @@ if ($room_exist){
 		case "waiting":
 			array_push($waiting_room,$room_data);
 			break;
-		case "prosessing":
+		case "processing":
 			array_push($prosessing_room,$room_data);
 			break;
 		}
