@@ -437,7 +437,7 @@ if(!isset($_SESSION[$room_file])){
 	$color_list = array("black","maroon","purple","green","olive","navy","teal");
 	foreach ($color_list as $color_item){
 		echo "<input type='radio' name='color' value='$color_item'";
-		if($_SESSION["color" . $roominfo->get_filename()] === $color_item){
+		if($_SESSION["color" . $room_file ] === $color_item){
 			echo " checked";
 		}
 
