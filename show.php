@@ -416,7 +416,7 @@ if($is_your_connection){
     <ul class="menu">
 <?php
 
-echo "<li><a href='./show.php?file=" . $roominfo->get_filename() . "'>更新する</a></li>";
+echo "<li><a href='./show.php?file=" . $room_file . "'>更新する</a></li>";
 ?>
 	<li><a href='./index.php'>玄関に戻る</a></li>
     </ul>
