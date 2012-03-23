@@ -35,11 +35,10 @@ $is_already_user = $roominfo->is_already_user($_POST['name']);
 if($roominfo->get_states() === "waiting"){
 	$_POST['name'] = escape_string($_POST['name'],40);
 	$_POST['pass'] = escape_string($_POST['pass'],40);
-	
 	//名前の重複チェック
 	
 	if($_POST['name'] !== "" and isset($_POST['name'])){
-		if($is_alredy_user->username !== FALSE){
+		if($is_already_user !== false){
 			if ($is_already_user->pass !== $_POST['pass']){
 				die("名前とパスワードが一致しません");
 			} else {
