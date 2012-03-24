@@ -204,11 +204,11 @@ if($roominfo->get_scene() === "mission"
 		if ($count_falsed === 0){
 			$save_data = "このミッションは【成功】しました。";
 			$roominfo->add_victory_point("registance");
-			$roominfo->set_victory_history($roominfo->get_team_member(),$roominfo->get_now_leader(),"registance");
+			$roominfo->set_victory_history($roominfo->get_team_member(),$roominfo->get_now_leader(),"registance",0);
 		} else {
 			$save_data = "このミッションは、" . $count_falsed . "人の「失敗」への投票で、【失敗】しました。";
 			$roominfo->add_victory_point("spy");
-			$roominfo->set_victory_history($roominfo->get_team_member(),$roominfo->get_now_leader(),"spy");
+			$roominfo->set_victory_history($roominfo->get_team_member(),$roominfo->get_now_leader(),"spy",$count_falsed);
 		}
 		$roominfo->add_log("system","warning","red",$save_data);
 		
@@ -494,7 +494,9 @@ if($roominfo->get_mission_no() > 1) {
 		echo "<span class='name'>Mission";
 		echo $counter;
 		echo "</span> <br />【" .  $history_item["team_leader"] . "】が選んだ【";
-		echo implode("、",$history_item["team_member"]) . "】のメンバーは、ミッションを【";
+		echo implode("、",$history_item["team_member"]) . "】のメンバーは、";
+		echo $history_item["failure_member"] > 0 ? $history_item["failure_member"] . "人の投票により" : "";
+		echo "ミッションを【";
 	    echo $history_item["victory_point"] === "registance" ? "成功" : "失敗";
 		echo "】させました。";
 		echo "</li>";

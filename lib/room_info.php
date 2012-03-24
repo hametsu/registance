@@ -468,8 +468,8 @@ class RoomInfo extends Singleton {
 		}
 	}
 
-	public function set_victory_history($team_member,$team_leader,$victory_point) {
-		$this->room_data[11] = $this->room_data[11] === "\n" ? implode(",",$team_member) . "," . $team_leader . "," . $victory_point . "\n" : trim($this->room_data[11]) . "," . implode(",",$team_member) . "," . $team_leader . "," . $victory_point . "\n"; 
+	public function set_victory_history($team_member,$team_leader,$victory_point,$failure_number) {
+		$this->room_data[11] = $this->room_data[11] === "\n" ? implode(",",$team_member) . ",$team_leader,$victory_point,$failure_number\n" : trim($this->room_data[11]) . "," . implode(",",$team_member) . ",$team_leader,$victory_point,$failure_number\n"; 
 	}
 
 	public function get_victory_history() {
@@ -478,7 +478,7 @@ class RoomInfo extends Singleton {
 		$team_need_array = $this->get_need_team_array();
 		$raw_array = explode(",",trim($this->room_data[11]));
 		for ($i = 0;$i < $this->get_mission_no() - 1;$i++){
-			$set_array = array("team_member"=>array(),"team_leader"=>NULL,"victory_point" => NULL);
+			$set_array = array("team_member"=>array(),"team_leader"=>NULL,"victory_point" => NULL,"failure_number"=>NULL);
 			for ($j = 0;$j < $team_need_array[$i];$j++) {
 				array_push($set_array["team_member"],$raw_array[$array_point]);
 				$array_point ++;
@@ -486,6 +486,8 @@ class RoomInfo extends Singleton {
 			$set_array["team_leader"] = $raw_array[$array_point];
 			$array_point++;
 			$set_array["victory_point"] = $raw_array[$array_point];
+			$array_point++;
+			$set_array["failure_member"] = (int) $raw_array[$array_point];
 			$array_point++;
 			array_push($result_array,$set_array);
 		}
