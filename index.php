@@ -1,5 +1,6 @@
 <?php
 ini_set("display_errors","on");
+require_once("./config/debug.php");
 include_once("./lib/eseUtil.php");
 
 //room.datが存在するかを保持する。
@@ -64,6 +65,11 @@ if ($room_exist){
 	<p>部屋名 : <input type="textarea" name="room_name"/></p>
 	<p>参加者の指定 :
 	<select name="people">
+<?php
+	if ($debug) {
+		echo '<option value="3">3</option>';
+	}
+?>
 		<option value="5">5</option>
 		<option value="6">6</option>
 	    <option value="7">7</option>
