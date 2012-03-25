@@ -42,6 +42,9 @@ if ($room_exist){
 <body>
     <div id="header">
 	<h1><img src="./regi-logo.png"></h1>
+	<h2>過去ログ</h2>
+		<p><a href="pastlog.php">過去に立てられた部屋</a></p>
+		<p>始めての方や、レジスタンスに興味を持った方は、ここから過去のログを読むと、だいたいの流れを掴むことができるかもしれません。</a>
 	<h2>連絡</h2>
 	<p><a href="http://twitter.com/esehara/">似非原重雄</a></p>
 	<p>mail to esehara at gmail dot com</p>
