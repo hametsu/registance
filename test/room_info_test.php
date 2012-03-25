@@ -158,6 +158,41 @@ class RoomInfoTest extends PHPUnit_Framework_TestCase
 	/**
 	 * @depends test_loadfile
 	 */
+	public function test_get_want_spy_user($roominfo) {
+		$get_want_to_spy = $roominfo->get_want_spy_user();
+		$this->assertSame(count($get_want_to_spy),2);
+		$this->assertSame($get_want_to_spy[0],"User1");
+	return $roominfo;
+	}
+
+	/**
+	 * @depends test_get_want_spy_user
+	 */
+	public function test_set_want_spy_user($roominfo){
+		$roominfo->debug_reset_want_spy_user();
+		$roominfo->set_want_spy_user("User3");
+		$get_want_to_spy = $roominfo->get_want_spy_user();
+		$this->assertSame(count($get_want_to_spy),1);
+		$this->assertSame($get_want_to_spy[0],"User3");
+
+		$roominfo->set_want_spy_user("User1");
+		$get_want_to_spy = $roominfo->get_want_spy_user();
+		$this->assertSame(count($get_want_to_spy),2);
+		$this->assertSame($get_want_to_spy[1],"User1");
+		return $roominfo;
+	}
+	/**
+	 * @depends test_set_want_spy_user
+	 */
+	public function test_dump_set_spylist($roominfo) {
+		$roominfo->debug_reset_want_spy_user();
+		$roominfo->set_want_spy_user("User3");
+		$roominfo->set_spylist();
+	}
+
+	/**
+	 * @depends test_loadfile
+	 */
 	public function test_waiting_to_processing($roominfo){
 		$roominfo->set_waiting_to_processing();
 		$not_leader = count($roominfo->get_not_leader());

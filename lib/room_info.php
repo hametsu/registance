@@ -216,7 +216,7 @@ class RoomInfo extends Singleton {
 	}
 	public function count_spy() {
 		$SPY_NUMBER = array (
-			3 => 1,
+			3 => 2,
 			4 => 2,
 			5 => 2,
 			6 => 2,
@@ -229,11 +229,33 @@ class RoomInfo extends Singleton {
 	}
 	
 	public function set_spylist() {
-		$get_user = $this->get_users_array();
 		$set_user = array();
+		$count_spy = $this->count_spy();
+		if (count($this->get_want_spy_user()) === 0){
+			$get_user = $this->get_users_array();
+		} elseif ($count_spy > count($this->get_want_spy_user())) {
+			$not_spy_user = $this->get_users_array();
+			$get_user = $this->get_want_spy_user();
+			foreach($get_user as $push_user){
+				array_push($set_user,$push_user);
+				for ($i = 0;$i < count($not_spy_user);$i++){
+					if ($not_spy_user === $push_user) {
+						$not_spy_user[$i] = "";
+						break;
+					}
+				}
+			}
+			$get_user = $not_spy_user;
+		} else {
+			$get_user = $this->get_want_spy_user();
+		}
 		shuffle($get_user);
-		for ($i = 0;$i < $this->count_spy();$i++){
+		for ($i = 0;count($set_user) < $count_spy;$i++){
 			$push_user = array_shift($get_user);
+			if ($push_user === ""){
+				$i--;
+				continue;
+			}
 			array_push($set_user,$push_user);
 		}
 		$this->room_data[3] = implode(",",$set_user)."\n";
@@ -492,6 +514,18 @@ class RoomInfo extends Singleton {
 			array_push($result_array,$set_array);
 		}
 		return $result_array;
+	}
+
+	public function debug_reset_want_spy_user(){
+		$this->room_data[13] = "\n";
+	}
+
+	public function get_want_spy_user() {
+		return $this->room_data[13] === "\n" ? array() : explode(",",trim($this->room_data[13]));
+	}
+
+	public function set_want_spy_user($username){
+		$this->room_data[13] = $this->room_data[13] === "\n" ? "$username\n" : trim($this->room_data[13]) . "," . "$username\n";
 	}
 
 }

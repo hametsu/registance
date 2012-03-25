@@ -11,7 +11,7 @@ User1,User3
 User1,trust,User2,veto
 
 User1,success,User3,failure
-
+User1,User2
 registance,spy
 
 

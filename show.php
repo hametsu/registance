@@ -63,7 +63,9 @@ if($roominfo->get_states() === "waiting"){
 		
 		$roominfo->add_user($_POST['name'],$_POST['pass']);	
 		$roominfo->add_log("system","warning","red",$save_data);
-
+		if ($_POST['want_spy'] === "want") {
+			$roominfo->set_want_spy_user($_POST['name']);
+		}
 		$roominfo->write_room_data();
 		}
 	}
@@ -442,6 +444,10 @@ if(!isset($_SESSION[$room_file])){
 			<form action='./show.php?file=$room_file' method='POST'>
 			名前：<input type='textarea' name='name'/><br />
 			簡易パスワード:<input type='textarea' name='pass' />
+			<select name='want_spy'>
+				<option value='not'>スパイを希望しない</option>
+				<option value='want'>スパイを希望する</option>
+			</select>
 			<input type='submit' value='参加する' />
 			</form>
 			<p style='font-size:75%;text-align:center;'>簡易パスワードは再ログインの為だけに使います。</p>
