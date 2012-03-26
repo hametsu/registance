@@ -98,12 +98,24 @@ class RoomInfoTest extends PHPUnit_Framework_TestCase
 	 * @depends test_loadfile
 	 */
 	public function test_add_user($roominfo){
-
 		$roominfo->add_user("User4","hoge");
 		$raw_data = $roominfo->get_raw_roomdata();
 		$this->assertSame($raw_data[2],"User1,pass,User2,pass2,User3,pass3,User4,hoge\n");
 		$this->assertTrue($roominfo->is_already_user("User4")->username === "User4");
+		return $roominfo;
+	}
 
+	/**
+	 * @depends test_add_user
+	 */
+	public function test_logout_user($roominfo) {
+		$this->assertTrue($roominfo->logout_user("User4","hoge"));
+		$this->assertFalse($roominfo->logout_user("","Falsepass"));
+		$this->assertFalse($roominfo->logout_user("User1",""));
+		$raw_data = $roominfo->get_raw_roomdata();
+		$this->assertSame($raw_data[2],"User1,pass,User2,pass2,User3,pass3\n");
+		$this->assertFalse($roominfo->logout_user("User1","Falsepass"));
+		return $roominfo;
 	}
 
 	/**
@@ -135,7 +147,7 @@ class RoomInfoTest extends PHPUnit_Framework_TestCase
 	 */
 	public function test_reset_leader($roominfo) {
 		$roominfo->reset_not_leader();
-		$this->assertSame(count($roominfo->get_not_leader()),4);
+		$this->assertSame(count($roominfo->get_not_leader()),3);
 	}
 	
 	/**
@@ -182,12 +194,23 @@ class RoomInfoTest extends PHPUnit_Framework_TestCase
 		return $roominfo;
 	}
 	/**
-	 * @depends test_set_want_spy_user
-	 */
 	public function test_dump_set_spylist($roominfo) {
 		$roominfo->debug_reset_want_spy_user();
 		$roominfo->set_want_spy_user("User3");
 		$roominfo->set_spylist();
+	}
+	 */
+
+	/**
+	 * @depends test_logout_user
+	 */
+	public function test_reflesh_want_spy_user($roominfo) {
+		$roominfo->debug_reset_want_spy_user();
+		$roominfo->set_want_spy_user("User1");
+		$roominfo->logout_user("User1","pass");
+		$raw_user = $roominfo->get_raw_roomdata();
+		$this->assertSame(count($roominfo->get_want_spy_user()),0);
+		$roominfo->add_user("User1","pass");
 	}
 
 	/**
@@ -197,7 +220,7 @@ class RoomInfoTest extends PHPUnit_Framework_TestCase
 		$roominfo->set_waiting_to_processing();
 		$not_leader = count($roominfo->get_not_leader());
 		$this->assertSame($roominfo->get_mission_no(),1);
-		$this->assertSame(count($roominfo->get_not_leader()),4);
+		$this->assertSame(count($roominfo->get_not_leader()),3);
 	}
 
 	/**

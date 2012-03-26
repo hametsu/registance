@@ -24,6 +24,7 @@ class RoomInfo extends Singleton {
 
 	//method for users
 	private function parse_user() {
+		$this->room_user = array();
 		$parse_users = $this->room_data[2] === "\n" ? array() : explode(",",trim($this->room_data[2]));
 		for ($i = 0;$i < count($parse_users);$i += 2){
 			$set_user = new RoomUser($parse_users[$i],$parse_users[$i + 1]);
@@ -58,8 +59,27 @@ class RoomInfo extends Singleton {
 
 	public function add_user($username,$pass){
 		$this->room_data[2] = $this->room_data[2] === "\n" ? "$username,$pass\n" : trim($this->room_data[2]) . ",$username,$pass\n";
-		$adduser = new RoomUser($username,$pass);
-		array_push($this->room_user,$adduser);
+		$this->parse_user();
+	}
+
+	public function logout_user($username,$pass){
+		$new_username_string = "";
+		if ($username === "" || $pass === "") {
+			return FALSE;
+		}
+
+		foreach($this->get_users() as $useritem){
+			if ($useritem->username === $username) {
+				if ($useritem->pass !== $pass){
+					return FALSE;
+				}
+			} else {
+				$new_username_string = $new_username_string === "" ? $useritem->username . "," . $useritem->pass : $new_username_string . "," . $useritem->username . "," . $useritem->pass;
+			}
+		}
+		$this->room_data[2] = $new_username_string . "\n";
+		$this->reflesh_want_spy_user();
+		return TRUE;
 	}
 
 	public function is_user($username) {
@@ -526,6 +546,19 @@ class RoomInfo extends Singleton {
 
 	public function set_want_spy_user($username){
 		$this->room_data[13] = $this->room_data[13] === "\n" ? "$username\n" : trim($this->room_data[13]) . "," . "$username\n";
+	}
+
+	public function reflesh_want_spy_user() {
+		$reflesh_want_spy_string = "";
+		$this->parse_user();
+		foreach($this->get_users_array() as $user_item){
+			foreach($this->get_want_spy_user() as $check_user){
+				if ($check_user === $user_item){
+					$reflesh_want_spy_string = $reflesh_want_spy_string === "" ? $user_item : $reflesh_want_spy_string . "," . $user_item;
+				}
+			}
+		}
+		$this->room_data[13] = $reflesh_want_spy_string . "\n";
 	}
 
 }

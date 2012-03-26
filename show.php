@@ -16,9 +16,10 @@ require_once './lib/room_info.php';
 
 $room_file = $_GET['file'];
 $room_file = str_replace("/","",$room_file);
+
 /*
-$room_file = "1332508800.dat";
-$_SESSION = array("name" . "data/" . $room_file => "opera");
+$room_file = "1332726779.dat";
+$_SESSION = array("name" . "data/" . $room_file => "chrome");
 $_POST = array("command" => "select_member",
 			   "select_user" => array("firefox","chrome","opera"));
  */
@@ -122,7 +123,23 @@ $is_your_spy = $roominfo->is_spy($_SESSION["name" . $roominfo->get_filename()]);
 
 
 //コマンドによって挙動を変更する
-if ($roominfo->get_states() === "processing" 
+if ($roominfo->get_states() === "waiting"){
+	switch($_POST['command']){
+	case "logout":
+		$result_bool = $roominfo->logout_user($_SESSION["name" . $roominfo->get_filename()],$_POST["pass"]);
+		if ($result_bool){
+			$is_your_connection = FALSE;
+			$roominfo->add_log("system","warning","red",$_SESSION["name" . $roominfo->get_filename()] . "さんが退出しました。");
+			session_destroy();
+			$_SESSION[$room_file] = NULL;
+			$_SESSION["name" . $roominfo->get_filename()] = NULL;
+			$roominfo->write_room_data();
+		} else {
+			die("パスワードが一致しませんでした");
+		}
+		break;
+	}
+} elseif ($roominfo->get_states() === "processing" 
 	&& isset($_POST['command'])){
 
 	switch($roominfo->get_scene()){
@@ -281,7 +298,7 @@ if(isset($_SESSION[$room_file])){
 			$save_data = $_POST['color'].",".$_POST['say'];
 		}
 		 */
-		$roominfo->add_log($user_name,"say",$_POST['color'],$_POST['say']);
+		$roominfo->add_log($user_name,$_POST['type'],$_POST['color'],$_POST['say']);
 		$_tempSESSION = $_SESSION;
 		session_destroy();
 		session_start();
@@ -476,10 +493,24 @@ if(!isset($_SESSION[$room_file])){
 		    if ($is_your_spy){
 		    echo "<input type='CHECKBOX' name='spysay' value='on' />スパイだけに伝える";
 		    }
-		     */
+			 */
+	echo "<select name='type'>
+			<option value='say'>通常の発言</option> 
+			<option value='dialog'>独り言</option>   
+			</select>";
 	echo "<input type='submit' value='発言する' />
 		</form>
 		";
+	/*
+	if ($_SESSION[$room_file]) {
+		echo "
+			<h3>観察者チャット</h3>
+			<form action='./show.php?file=$room_file' method='POST'>
+				
+			</form>
+			";
+	}
+	 */
 }
 ?>
     <h2>勝敗</h2>
@@ -534,12 +565,26 @@ if(!isset($room_data[16])){
 				echo "<li style='color:".$log_array[2]."'><span class='name'>".$log_array[0]." (スパイに向けて) :</span>".$log_array[3]."</li>";
 			}    
 			break;
-		*/
+		 */
+		case "dialog":
+			switch($roominfo->get_states()){
+			case "waiting":
+			case "processing":
+				if ($log_array[0] === $_SESSION["name" . $roominfo->get_filename()]) {
+					echo "<li class='dialog' style='color:" . $log_array[2] ."'>" . "<span class='name'>" . $log_array[0] . "</span>" . $log_array[3] . "</li>" ;
+				}
+				break;
+			case "end":
+					echo "<li class='dialog' style='color:" . $log_array[2] ."'>" . "<span class='name'>" . $log_array[0] . "</span>" . $log_array[3] . "</li>" ;
+			}
+			break;
 		case "warning":
 			echo "<li class='warning'>" . $log_array[3] . "</li>";
 			break;
 		case "message":
 			echo "<li class='message'>" . $log_array[3] . "</li>";
+			break;
+		case "viewsay":
 			break;
 		}
 	}
@@ -641,6 +686,20 @@ if ($roominfo->get_states() === "processing") {
 }
 ?>
 	</ul>
+<h2>システム</h2>
+<?php
+if ($roominfo->get_states() === "waiting" && isset($_SESSION["name" . $roominfo->get_filename()])) {
+	echo "<h3>退出する</h3>";
+	echo "<form action='./show.php?file=$room_file' method='POST'>
+		  <input type='hidden' name='command' value='logout' />
+		  Pass <input type='textarea' name='pass' size='5'/>
+		  <input type='submit' value='退出する' />
+		  ";
+	echo "<p>※ゲームが始まると退出できなくなります※</p>";
+	echo "</form>";
+}
+
+?>
 	</div>
 
 <!-- END MAIN -->

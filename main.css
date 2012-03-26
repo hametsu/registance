@@ -261,5 +261,8 @@ margin:0px;
 #history_list li.registance {
 	background-color:#70B0F0;
 	border:2px solid #039;
+}
 
+li.dialog {
+	background-color:#AAA;
 }
