@@ -47,6 +47,7 @@ if ($room_exist){
 		<p>始めての方や、レジスタンスに興味を持った方は、ここから過去のログを読むと、だいたいの流れを掴むことができるかもしれません。</a>
 	<h2>連絡</h2>
 	<p><a href="http://twitter.com/esehara/">似非原重雄</a></p>
+	<p><a href="http://twitter.com/resistancechat/">レジスタンスチャット告知用アカウント</a></p>
 	<p>mail to esehara at gmail dot com</p>
 	<p>なんか変なところなどが見つかりましたら、教えてくれるとありがたいです。</p>
 	<h2>概要</h2>
