@@ -17,8 +17,10 @@ require_once './lib/room_info.php';
 $room_file = $_GET['file'];
 $room_file = str_replace("/","",$room_file);
 
+$room_file = "1332850862.dat";
 /*
-$room_file = "1332726779.dat";
+$_POST = array("name" => "opera",
+			   "pass" => "opera");
 $_SESSION = array("name" . "data/" . $room_file => "chrome");
 $_POST = array("command" => "select_member",
 			   "select_user" => array("firefox","chrome","opera"));
@@ -78,7 +80,7 @@ if($roominfo->get_states() === "waiting"){
 				&& $is_already_user !== FALSE
 				&& $_POST['pass'] !== NULL)
 			{
-				$_SESSION['name' . $roomfile->get_filename() ] = $_POST['name'];
+				$_SESSION['name' . $roominfo->get_filename() ] = $_POST['name'];
 				$_SESSION[$room_file] = TRUE;
 			}
 		}
@@ -183,15 +185,18 @@ if ($roominfo->get_states() === "waiting"){
 if($roominfo->get_scene() === "vote"){
 	if($roominfo->count_vote() >= $roominfo->count_user()){
 		$is_team_trust = 0;
+		$save_data = "<ul>";
+		$save_data .= "<li><h3>投票結果</h3></li>";
 		//投票者の統計をログに流す
 		foreach($roominfo->get_users() as $get_user){
-			$save_data = $get_user->username . "さんは、【" . ($get_user->vote === "trust" ? "信任" : "不信任") . "】に投票しました。";
+			$save_data .= "<li class='member'>" . $get_user->username . "さん ::【" . ($get_user->vote === "trust" ? "信任" : "不信任") . "】に投票。</li>";
 			if ($get_user->vote === "trust"){
 				$is_team_trust ++;
 			}
-		$roominfo->add_log("system","message","red",$save_data);
 		}
-
+		$save_data .= "</ul>";
+		$roominfo->add_log("system","message","red",$save_data);
+		
 		//投票者の初期化
 		$roominfo->reset_vote_user();
 
@@ -256,7 +261,8 @@ $count_not_success = $result["spy"];
 
 //もし、ゲームの終了条件なら、ゲームを終了する
 if ($roominfo->get_states() === "processing"){
-	if ($count_success >= 3 || $count_not_success >= 3){
+	$failure_no = $roominfo->get_failure_team_no();
+	if ($count_success >= 3 || $count_not_success >= 3 || $failure_no > 5){
 		rewrite_room_dat("end",$room_file);
 		$roominfo->set_states("end");
 		$roominfo->set_scene("end");
@@ -264,8 +270,11 @@ if ($roominfo->get_states() === "processing"){
 		$roominfo->set_game_victory("registance");
 		$save_data = "やりましたね！スパイの妨害を勝ち抜き、【レジスタンス側の勝利】です。";
 
-	} elseif ($count_not_success >= 3){
+	} elseif ($count_not_success >= 3 || $failure_no > 5){
 		$roominfo->set_game_victory("spy");
+		if ($failure_no > 5){
+			$roominfo->add_log("system","warning","red","既に信任投票が五回になりました。このメンバーは機能不全に陥っていると見なされ、スパイ側の勝利となります。");
+		}
 		$save_data = "やりましたね！無事、レジスタンスを妨害し、【スパイ側の勝利】です。";
 	}
 	$roominfo->add_log("system","warning","red",$save_data);
@@ -356,16 +365,16 @@ $(function(){
 				resent_log[i]["time"] = resent_log[i]["time"];
 				switch(resent_log[i]["comd"]){
 				case "say":
-				//echo "<li style='color:".$log_array[2]."'><span class='name'>".$log_array[0].":</span>".$log_array[3]."</li>";
 					if (resent_log[i]["time"] > now_reflesh_time){
-						$("<li/>").css("color",resent_log[i]["color"]).css("display","hiddden").html("<span class='name'>" + resent_log[i]["name"] + ":</span>" + resent_log[i]["message"]).fadeIn("slow").prependTo("#show_log");
+						//echo "<li style='color:".$log_array[2]."'><div class='sayitem' style='border:2px solid ". $log_array[2] . "'><span class='name'>".$log_array[0].":</span><p>".$log_array[3]."</p></div></li>";
+						$("<li/>").css("color",resent_log[i]["color"]).css("display","hiddden").html("<div class='sayitem " + resent_log[i]["color"] + "'><span>" + resent_log[i]["name"] + ":</span><p>" + resent_log[i]["message"] + "</p></div>").fadeIn("slow").prependTo("#show_log");
 					}
 					break;
 				case "warning":
 					if (resent_log[i]["time"] > now_reflesh_time) {
 						$("<li/>").addClass("warning").text(resent_log[i]["message"]).fadeIn("slow").prependTo("#show_log");
 					}	
-					if($("input#say").val() == "") {
+					if($("textarea#say").val() == "") {
 						location.replace(location.href);
 					}	
 					break;
@@ -478,7 +487,7 @@ if(!isset($_SESSION[$room_file])){
 } else {
 	echo "
 		<form action='./show.php?file=$room_file' method='POST'>
-		$user_name <input type='textarea' name='say'style='width:80%' id='say' /><br />";
+		$user_name <textarea name='say'style='width:95%' rows='2' id='say' /></textarea><br />";
 
 	$color_list = array("black","maroon","purple","green","olive","navy","teal");
 	foreach ($color_list as $color_item){
@@ -530,12 +539,14 @@ if($roominfo->get_mission_no() > 1) {
 		echo "<li class='" . $history_item["victory_point"] . "'>";
 		echo "<span class='name'>Mission";
 		echo $counter;
-		echo "</span> <br />【" .  $history_item["team_leader"] . "】が選んだ【";
-		echo implode("、",$history_item["team_member"]) . "】のメンバーは、";
+		echo "</span>";
+		echo "<ul><li><span>リーダー </span>:: 【" .  $history_item["team_leader"] . "】</li>";
+		echo "<li><span>メンバー</span> :: 【" . implode("、",$history_item["team_member"]) . "】</li>";
+		echo "<li>";
 		echo $history_item["failure_member"] > 0 ? $history_item["failure_member"] . "人の投票により" : "";
-		echo "ミッションを【";
+		echo "ミッションは【";
 	    echo $history_item["victory_point"] === "registance" ? "成功" : "失敗";
-		echo "】させました。";
+		echo "】</li></ul>";
 		echo "</li>";
 		$counter++;
 	}
@@ -557,7 +568,7 @@ if(!isset($room_data[16])){
 		$log_array = explode(",",$log_line);
 		switch($log_array[1]){
 		case "say":
-			echo "<li style='color:".$log_array[2]."'><span class='name'>".$log_array[0].":</span>".$log_array[3]."</li>";
+			echo "<li style='color:".$log_array[2]."'><div class='sayitem ". $log_array[2] . "'><span>".$log_array[0].":</span><p>".$log_array[3]."</p></div></li>";
 			break;
 		/*
 		case "spysay":
@@ -571,7 +582,7 @@ if(!isset($room_data[16])){
 			case "waiting":
 			case "processing":
 				if ($log_array[0] === $_SESSION["name" . $roominfo->get_filename()]) {
-					echo "<li class='dialog' style='color:" . $log_array[2] ."'>" . "<span class='name'>" . $log_array[0] . "</span>" . $log_array[3] . "</li>" ;
+					echo "<li class='dialog' style='color:" . $log_array[2] ."'>" . "<span class='name'>" . $log_array[0] . "</span><p>" . $log_array[3] . "</p></li>" ;
 				}
 				break;
 			case "end":
@@ -661,6 +672,8 @@ case "end":
 <?php
 
 if ($roominfo->get_states() === "processing") {
+	echo '<h2>信任投票回数</h2>';
+	echo '<ul><li>' . $roominfo->get_failure_team_no() . "回目</li></ul>";
 	echo '
 	<h2>スパイの人数</h2>
 	<ul>
@@ -679,7 +692,11 @@ if ($roominfo->get_states() === "processing") {
 		if ($roominfo->get_mission_no() === $counter) {
 			echo "<li id='now_mission'>";
 		} else {
-			echo "<li>";
+			if ($roominfo->get_mission_no() < $counter) {
+				echo "<li>";
+			} else {
+				echo "<li style='color:#AAA;'>";
+			}
 		}
 	echo "M#$counter :: $team_number</li>";
 	}

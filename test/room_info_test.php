@@ -462,6 +462,44 @@ class RoomInfoTest extends PHPUnit_Framework_TestCase
 		$this->assertSame($victory_array[1]["team_member"],array("User1","User2","User3"));
 		$this->assertSame($victory_array[1]["victory_point"],"success");
 		$this->assertSame($victory_array[1]["failure_member"],0);
+		return $roominfo;
+	}
+	
+	/**
+	 * @depends test_loadfile
+	 */
+	public function test_get_failure_team_no($roominfo) {
+		$this->assertSame($roominfo->get_failure_team_no(),5);
+		return $roominfo;
 	}
 
+	/**
+	 * @depends test_get_failure_team_no
+	 */
+	public function test_set_failure_team_no($roominfo) {
+		$roominfo->set_failure_team_no(2);
+		$this->assertSame($roominfo->get_failure_team_no(),2);
+		return $roominfo;
+	}
+
+	/**
+	 * @depends test_set_failure_team_no
+	 */
+
+	public function test_plus_failure_team_no($roominfo) {
+		$roominfo->plus_failure_team_no();
+		$this->assertSame($roominfo->get_failure_team_no(),3);
+	}
+
+	/**
+	 * @depends test_get_failure_team_no
+	 * ミッションをセットしたとき、ちゃんと不信任チームの回数がリセットされるか
+	 */
+	public function test_reset_failure_team_no($roominfo) {
+		$roominfo->set_scene("mission");
+		$roominfo->set_scene("team");
+		$this->assertSame($roominfo->get_failure_team_no(),1);
+		$roominfo->set_scene("team");
+		$this->assertSame($roominfo->get_failure_team_no(),2);
+	}
 }

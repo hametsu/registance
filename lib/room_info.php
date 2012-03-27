@@ -320,9 +320,11 @@ class RoomInfo extends Singleton {
 			$this->set_now_leader();
 			if ($this->get_scene() === "mission"){
 				$this->plus_mission();
+				$this->set_failure_team_no(0);
 			}
 			$this->reset_team_member();
 			$this->reset_vote_user();
+			$this->plus_failure_team_no();
 			break;
 		case "vote":
 			$this->reset_mission_user();
@@ -334,15 +336,29 @@ class RoomInfo extends Singleton {
 	}
 
 	public function get_mission_no() {
-		return (int) trim($this->room_data[6]);
+		$line_parse = explode(",",trim($this->room_data[6]));
+		return (int) $line_parse[0];
 	}
 
 	public function set_mission_no($i) {
-		$this->room_data[6] = (string) $i . "\n";
+		$this->room_data[6] = (string) $i . "," . $this->get_failure_team_no() ."\n";
 	}
 
 	public function plus_mission() {
 		$this->set_mission_no($this->get_mission_no() + 1);
+	}
+
+	public function get_failure_team_no() {
+		$line_parse = explode(",",trim($this->room_data[6]));
+		return (int) $line_parse[1];
+	}
+
+	public function set_failure_team_no($i) {
+		$this->room_data[6] = (string) $this->get_mission_no() . "," . $i .  "\n";
+	}
+
+	public function plus_failure_team_no() {
+		$this->set_failure_team_no($this->get_failure_team_no() + 1);
 	}
 
 	public function get_now_leader() {

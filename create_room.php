@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET'){
 	fwrite($file_access,"\n");//[3] 参加者の役割(スパイのみ)
 	fwrite($file_access,$_POST['people']."\n");//[4] 参加者の人数
 	fwrite($file_access,"breafing\n");//[5] 部屋のシーン
-	fwrite($file_access,"0\n");//[6] ミッションの回数
+	fwrite($file_access,"0,0\n");//[6] ミッションの回数
 	fwrite($file_access,"\n");//[7] 現在のリーダー
 	fwrite($file_access,"\n");//[8] リーダーをやっていない人間
 	fwrite($file_access,"\n");//[9] 投票をしたかどうか
