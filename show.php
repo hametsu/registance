@@ -16,9 +16,8 @@ require_once './lib/room_info.php';
 
 $room_file = $_GET['file'];
 $room_file = str_replace("/","",$room_file);
-
-$room_file = "1332850862.dat";
 /*
+$room_file = "1332850862.dat";
 $_POST = array("name" => "opera",
 			   "pass" => "opera");
 $_SESSION = array("name" . "data/" . $room_file => "chrome");
@@ -230,9 +229,22 @@ if($roominfo->get_scene() === "mission"
 			$roominfo->add_victory_point("registance");
 			$roominfo->set_victory_history($roominfo->get_team_member(),$roominfo->get_now_leader(),"registance",0);
 		} else {
+			if ($roominfo->get_mission_no() === 4 
+				&& count($roominfo->get_users_array()) > 6) {
+				if ($count_falsed === 1) {
+					$save_data = "このミッションは、" . $count_falsed . "人の「失敗」への投票がありましたが、無事成功しました。";
+				    $roominfo->add_victory_point("registance");	
+					$roominfo->set_victory_history($roominfo->get_team_member(),$roominfo->get_now_leader(),"registance",1);
+				} else {
+					$save_data = "このミッションは、" . $count_falsed . "人の「失敗」への投票で、【失敗】しました。";
+					$roominfo->add_victory_point("spy");
+					$roominfo->set_victory_history($roominfo->get_team_member(),$roominfo->get_now_leader(),"spy",$count_falsed);
+				}
+				}else{
 			$save_data = "このミッションは、" . $count_falsed . "人の「失敗」への投票で、【失敗】しました。";
 			$roominfo->add_victory_point("spy");
 			$roominfo->set_victory_history($roominfo->get_team_member(),$roominfo->get_now_leader(),"spy",$count_falsed);
+			}
 		}
 		$roominfo->add_log("system","warning","red",$save_data);
 		
@@ -372,7 +384,7 @@ $(function(){
 					break;
 				case "warning":
 					if (resent_log[i]["time"] > now_reflesh_time) {
-						$("<li/>").addClass("warning").text(resent_log[i]["message"]).fadeIn("slow").prependTo("#show_log");
+						$("<li/>").addClass("warning").html(resent_log[i]["message"]).fadeIn("slow").prependTo("#show_log");
 					}	
 					if($("textarea#say").val() == "") {
 						location.replace(location.href);
@@ -380,7 +392,7 @@ $(function(){
 					break;
 				case "message":
 					if (resent_log[i]["time"] > now_reflesh_time) {
-						$("<li/>").addClass("message").text(resent_log[i]["message"]).fadeIn("slow").prependTo("#show_log");
+						$("<li/>").addClass("message").html(resent_log[i]["message"]).fadeIn("slow").prependTo("#show_log");
 					}	
 					break;
 					}
@@ -604,6 +616,18 @@ if(!isset($room_data[16])){
     </ul>
     </div>
 	<div id="sanka_list">
+<?php
+if ($roominfo->get_states() === "processing"
+	&& isset($_SESSION["name" . $roominfo->get_filename()])){
+		echo "<h2>貴方の陣営</h2><ul>";
+		if ($roominfo->is_spy($_SESSION["name" . $roominfo->get_filename()])){
+		echo "<li class='your_party'><span class='spy'>スパイ</span></li>";
+		} else {
+		echo "<li class='your_party'><span class='name'>レジスタンス</span></li>";
+		}
+		echo "</ul>";
+	}
+?>
     <h2>参加者たち</h2>
     <ul class='users'>
 <?php 

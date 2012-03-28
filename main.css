@@ -80,6 +80,13 @@ html,body {
     font-weight:bold;
 }
 
+li.your_party span.spy {
+	display:block;
+	color:733926;
+	background-color:#F0BAA8;
+	font-weight:bold;
+}
+
 #sanka_list ul.users li span.spy{
     color:#733926;
     background-color:#F0BAA8;
@@ -117,7 +124,7 @@ html,body {
     border-left:5px solid #A3C2BA;
     padding-bottom:20px;
     border-bottom:5px solid #A3C2BA;
-
+	font-size:85%;
 }
 
 #log h2{
@@ -415,4 +422,8 @@ li.dialog {
 	-moz-border-radius:5px;
 	-webkit-border-radius:5px;
 	background-color:#AAA;
+}
+
+#sanka_list ul li.your_party {
+	border:none;
 }

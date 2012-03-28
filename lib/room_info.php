@@ -98,6 +98,15 @@ class RoomInfo extends Singleton {
 	
 	}
 
+	public function shuffle_users() {
+		$new_user_string = "";
+		shuffle($this->room_user);
+		foreach($this->room_user as $user_item) {
+			$new_user_string = $new_user_string === "" ? $user_item->username . "," . $user_item->pass : $new_user_string . "," . $user_item->username . "," . $user_item->pass;
+		}
+		$this->room_data[2] = $new_user_string . "\n";
+	}
+
 	//method for mission_user
 	private function parse_mission_user() {
 		$parse_mission_users = $this->room_data[12] == "\n" ? array() : explode(",",trim($this->room_data[12]));
@@ -371,7 +380,6 @@ class RoomInfo extends Singleton {
 			$this->reset_not_leader();
 			$target_not_leader = $this->get_not_leader();
 		}
-		shuffle($target_not_leader);
 		$this->room_data[7] = array_shift($target_not_leader) . "\n";
 		$this->room_data[8] = implode(",",$target_not_leader) . "\n";
 	}
@@ -465,6 +473,7 @@ class RoomInfo extends Singleton {
 	public function set_waiting_to_processing() {
 
 		$this->set_mission_no(1);
+		$this->shuffle_users();
 		$this->set_states("processing");
 		$this->reset_not_leader();
 		$this->set_spylist();
