@@ -1,8 +1,0 @@
-DirectoryIndex index.php
-
-<Files data>
-order deny,allow
-deny from all
-</Files>
-
-
