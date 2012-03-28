@@ -35,7 +35,15 @@ if ($room_exist){
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html lang="ja">
 <head>
-    <link rel="stylesheet" href="./main.css" />
+	<link rel="stylesheet" href="./main.css" />
+	<script type="text/javascript" src="./lib/jquery-1.7.1.min.js"></script>
+<script type="text/javascript">
+$(function(){
+	$('input#makeroom').click(function(){
+		return confirm("「" + $("input#roomname").val() + "」の名前で、" + $("select#roompeople").val() + "人の部屋を作成します。よろしいですか？");
+	});
+});
+	</script>
 	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
 	<title>レジスタンス・チャット</title>
 </head>
@@ -58,6 +66,7 @@ if ($room_exist){
 	</ul>
 	<p>　人狼は一時期、論理的かつ心理の読み合いという面白さから、製作者の周りでブームになったことがあります。ですが、人狼は、初日に狙われると、楽しみが半減してしまうという欠点が存在してしました。それら「排除」という観点を無くすことによって、全てのプレイヤーができるだけ長く参加できるようになっています。</p>
 	<p>　このゲームのルールは、元々は<a href="http://sgrk.blog53.fc2.com/blog-entry-1957.html">レジスタンス</a>というテーブルゲームを参考に作っています。チャットもいいけど、リアルでやるのも楽しいので、是非購入しましょう。5人から遊べるし！！</p>
+	<p>　また、<a href="doc/">詳細ドキュメント</a>も現在制作中です。</p>
 	<h2>リンク</h2>
 		<a href="http://www.segausers.gr.jp/~ceptg/sor/sow.cgi">革命物語</a>
 	<p>革命物語は、人狼物語というスクリプトをベースとしたレジスタンスが遊べるサイトのようです。元のスクリプトからの開発・改造なだけあってわかりやすく遊べるところがとてもGoodです。こちらの表示が苦手な方は、こっちで遊ばれるのもいいかもしれません。</p>
@@ -69,9 +78,9 @@ if ($room_exist){
     <div id="log">
     <h2>新しい部屋を作成する</h2>
     <form action="./create_room.php" method="POST">
-	<p>部屋名 : <input type="textarea" name="room_name"/></p>
+	<p>部屋名 : <input type="textarea" name="room_name" id="roomname"/></p>
 	<p>参加者の指定 :
-	<select name="people">
+	<select name="people" id="roompeople">
 <?php
 	if ($debug) {
 		echo '<option value="3">3</option>';
@@ -84,7 +93,7 @@ if ($room_exist){
 	    <option value="9">9</option>
 	    <option value="10">10</option>
 	</p>
-	<input type="submit" value="作成">
+	<input id="makeroom" type="submit" value="作成">
 	</form>
     <h2>募集中の部屋</h2>
     <!-- 募集中の部屋を表示する -->

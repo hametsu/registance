@@ -1,2 +1,2 @@
 <?php
-	$debug = FALSE;
+	$debug = TRUE;
