@@ -1,0 +1,429 @@
+html,body {
+    margin:0px;
+    padding:0px;
+    background-color:#335566;
+    width:100%;
+}
+
+#main {
+    position:relative;
+}
+
+#header {
+
+    height:100%;
+    height:auto;
+    float:left;
+    width:30%;
+    margin:20px;
+    border:5px solid #D9D926;
+    background-color:#FFF;
+}
+
+#header li{
+
+    list-style-type:none;
+    line-height:1.5em;
+
+}
+
+#header h1{
+
+    margin:0px;
+    padding:20px;
+    color:#FFF;
+    background-color:#455C3D;
+    background: -moz-linear-gradient(top,#455C3D,#739966);
+    background: -webkit-gradient(linear,left top,left bottom,from(#455C3D), to(#739966));
+    border-bottom:5px solid #D9D926;
+}
+
+#sanka_list h2,#header h2{
+	color:#FFF;
+    background-color:#66998C;
+    border-top   :5px solid #D9D926;
+    border-bottom:5px solid #D9D926;
+    margin:0px;
+    padding:5px;
+}
+#header p{
+    padding:5px;
+    line-height:1.2em;
+
+}
+#header form{
+
+    margin:30px;
+
+}
+
+#header ul.menu li{
+
+    display:inline;
+
+}
+
+#header ul.menu li a{
+    border:1px solid #66998C;
+    background-color: #DCF0EB;
+    padding:10px;
+
+}
+
+#header ul.users li{
+    border-bottom:2px solid #DDD; 
+}
+
+#sanka_list ul.users li span.leader{
+    color:#737326;
+    background-color:#FFC;
+    font-weight:bold;
+}
+
+li.your_party span.spy {
+	display:block;
+	color:733926;
+	background-color:#F0BAA8;
+	font-weight:bold;
+}
+
+#sanka_list ul.users li span.spy{
+    color:#733926;
+    background-color:#F0BAA8;
+    font-weight:bold;
+}
+
+#sanka_list ul.users li span.team{
+    font-weight:bold;
+}
+
+#sucess{
+    padding:10px;
+    background-color:#C04040;
+    color:#FFF;
+    font-size:1.5em;
+    border-bottom:2px solid #C04040;
+}
+
+#falsed{
+    padding:10px;
+    background-color:#4080C0;
+    color:#FFF;
+    font-size:1.5em;
+    border-bottom:2px solid #4080C0;
+}
+
+
+#log{
+    height:100%;
+    height:auto;
+    background-color:#EEE;
+    margin-left:30%;
+    margin-right:180px;
+    border-right:5px solid #A3C2BA;
+    border-left:5px solid #A3C2BA;
+    padding-bottom:20px;
+    border-bottom:5px solid #A3C2BA;
+	font-size:85%;
+}
+
+#log h2{
+    background-color:#4080C0;
+    background: -moz-linear-gradient(top,#3080C0,#79A6D3);
+    background: -webkit-gradient(linear,left top,left bottom,from(#3080C0), to(#79A6D3));
+    color:#FFF;
+    margin:0px;
+    padding:5px;
+    border-bottom:5px solid #A3C2BA;
+}
+
+#log li{
+    padding:5px;
+    list-style-type:none;
+    line-height:1.5em;
+}
+
+
+/*
+ *
+ * CSS for Sayitem
+ *
+ */
+div.sayitem{
+	margin-right:20px;
+	border-radius:10px;
+	-moz-border-radius:10px;
+	-webkit-border-radius:10px;
+	padding:15px;
+}
+
+div.black{
+    background: -moz-linear-gradient(top,#FFF,#EEE);
+    background: -webkit-gradient(linear,left top,left bottom,from(#FFF), to(#EEE));
+	background-color:white;
+	border:2px solid black;
+	color:black;
+}
+
+div.black span{
+	background-color:black;
+}
+
+div.maroon{
+    background: -moz-linear-gradient(top,#FFF,#F0A8A8);
+    background: -webkit-gradient(linear,left top,left bottom,from(#FFF), to(#FFEEEE));
+	background-color:white;
+	border:2px solid maroon;
+	color:maroon;
+}
+
+div.maroon span {
+	background-color:maroon;
+}
+
+div.purple {
+    background: -moz-linear-gradient(top,#FFF,#C0BBFF);
+    background: -webkit-gradient(linear,left top,left bottom,from(#FFF), to(#C0BBFF));
+	background-color:white;
+	border:2px solid #543D5C;
+	color:#543D5C;
+}
+
+div.purple span {
+	background-color:#543D5C;
+}
+
+div.green {
+    background: -moz-linear-gradient(top,#FFF,#A8F0BA);
+    background: -webkit-gradient(linear,left top,left bottom,from(#FFF), to(#A8F0BA));
+	background-color:white;
+	border:2px solid #3D5C3D;
+	color:#3D5C3D;
+}
+
+div.green span{
+	background-color:#3D5C3D;
+}
+
+div.olive{
+    background: -moz-linear-gradient(top,#FFF,#F0DEA8);
+    background: -webkit-gradient(linear,left top,left bottom,from(#FFF), to(#F0DEA8));
+	background-color:white;
+	border:2px solid #663;
+	color:#663;
+}
+
+div.olive span {
+	background-color:#663;
+}
+
+div.navy{
+    background: -moz-linear-gradient(top,#FFF,#DDF);
+    background: -webkit-gradient(linear,left top,left bottom,from(#FFF), to(#DDF));
+	background-color:white;
+	border:2px solid navy;
+	color:navy;
+}
+
+div.navy span {
+	background-color:navy;
+}
+
+div.teal{
+    background: -moz-linear-gradient(top,#FFF,#AAF0D9);
+    background: -webkit-gradient(linear,left top,left bottom,from(#FFF), to(#AAF0D9));
+	background-color:white;
+	border:2px solid teal;
+}
+
+div.teal span{
+	background-color:teal;
+}
+
+#log form{
+    margin:20px;
+    margin-left:40px;
+    width:80%;
+    line-height:1.5em;
+    padding:10px;
+    border:1px dotted #AAA;
+}
+
+#log li.message,#header p.message{
+
+    border:1px solid #3D545C;
+    
+    border-radius:10px;
+    -moz-border-radius:10px;
+    -webkit-border-radius:10px;
+    
+    margin-right:10px;
+
+    font-weight: bold;
+
+    background-color:#DCF0F0;
+    background: -moz-linear-gradient(top,#DCF0F0,#FFFFFF);
+    background: -webkit-gradient(linear,left top,left bottom,from(#DCF0F0),to(#FFFFFF));
+    color:#3D545C;
+    padding:5px;
+}
+
+#log li.message ul li.member {
+	border-bottom:solid 1px #ACB0B0;
+}
+
+#log li.message ul li h3 {
+	border-radius:10px;
+	-moz-border-radius:10px;
+	-webkit-border-radius:10px;
+	margin:0px;
+	margin-bottom:12px;
+	padding:10px;
+	color:white;
+	background-color:#3D545C;
+}
+
+#log li.warning{
+
+    border:1px solid #5C3D3D;
+    
+    border-radius:10px;
+    -moz-border-radius:10px;
+    -webkit-border-radius:10px;
+
+    margin-right:10px;
+
+    font-weight: bold;
+
+    background-color:#F0DCDC;
+    background: -moz-linear-gradient(top,#F0DCDC,#FFFFFF);
+    background: -webkit-gradient(linear,left top,left bottom,from(#F0DCDC), to(#FFFFFF));
+    color:#5C3D3D;
+    padding:5px;
+}
+
+span.name{
+    margin-right:1em;
+    font-weight: bold;
+}
+
+#sanka_list{
+	border:5px solid #D9D926;
+	position:absolute;
+	background-color:white;
+	margin:10px;
+	margin-top:20px;
+	right:0px;
+	top:0px;
+	width:150px;
+
+}
+
+#sanka_list h2{
+	font-size:110%;
+}
+
+#sanka_list ul{
+	margin:0px;
+	padding:5px;
+	font-size:12px;
+	list-style-type:none;
+	line-height:1.5em;
+	text-indent:1px;
+}
+
+#sanka_list ul li{
+	font-size:12px;
+	text-indent:1px;
+	padding:10px;
+	border-bottom:2px solid #DDD;
+}
+
+#sanka_list ul li#now_mission{
+	background-color:#F9C;
+	border:2px solid #C69;
+    font-weight: bold;
+}
+
+#history_list{
+padding:0px;
+margin:0px;
+}
+
+#history_list li {
+	margin-top:5px;
+	margin-bottom:5px;
+	padding:0px;
+	list-style-position:outside;
+	padding:10px;
+	border-radius:5px;
+	-moz-border-radius:5px;
+	-webkit-border-radius:5px;
+}
+
+#history_list li.spy .name{
+	border-bottom:2px solid #C00;
+
+}
+
+#history_list li.registance .name {
+	border-bottom:2px solid #039;
+}
+
+#history_list li.spy {
+	background-color:#F07070;
+	border:2px solid #C00;
+}
+
+#history_list li.registance {
+	background-color:#70B0F0;
+	border:2px solid #039;
+}
+
+#history_list li ul {
+	padding:0px;
+	margin:0px;
+}
+
+#history_list li ul li{
+	border-radius:0px;
+	-moz-border-radius:0px;
+	-webkit-border-radius:0px;
+	padding:0px;
+	margin:0px;
+	padding-top:5px;
+	padding-bottom:5px;
+	list-style-position:outside;
+	font-size:85%;
+}
+
+div.sayitem span {
+	border-radius:7px;
+	-moz-border-radius:7px;
+	-webkit-border-radius:7px;
+	font-weight:bold;
+	display:block;
+	width:100%;
+	color:white;
+	padding:5px;
+	padding-right:0px;
+}
+
+#history_list li.registance ul li {
+	border-bottom:1px solid #36B;
+}
+
+#history_list li.spy ul li {
+	border-bottom:1px solid #F33;
+}
+
+li.dialog {
+	border-radius:5px;
+	-moz-border-radius:5px;
+	-webkit-border-radius:5px;
+	background-color:#AAA;
+}
+
+#sanka_list ul li.your_party {
+	border:none;
+}
