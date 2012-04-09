@@ -1,17 +1,7 @@
 <?php
 ini_set("display_errors","on");
 
-//エスケープ関数の作成
-
-function escape_string($target_string){
-	$target_string = str_replace(",","",$target_string);
-	$target_string = strip_tags($target_string);
-	if (mb_strlen($target_string) > 120){
-		die("文字列が大きすぎます！！");
-	}
-	return $target_string;
-}
-
+require_once("./lib/eseUtil.php");
 
 if ($_SERVER['REQUEST_METHOD'] == 'GET'){
 
@@ -19,7 +9,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET'){
 
 } else {
 	$room_name = $_POST['room_name'];
-	$room_name = escape_string($room_name);
+	//部屋に改行の名前に改行は使えない
+	$room_name = str_replace("\n","",$room_name);
+	$room_name = escape_string($room_name,100);
 	$room_file = (string) time() . ".dat";
 	//部屋のリストファイルを更新する
 	$file_access = fopen("data/room.dat","a");

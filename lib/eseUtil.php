@@ -69,10 +69,17 @@ function eseFile($filename)
 
 //エスケープ関数の作成
 function escape_string($target_string,$max_size){
-	$target_string = str_replace(",","",$target_string);
+	$target_string = str_replace(",","、",$target_string);
 	$target_string = strip_tags($target_string);
+
+	// < > & "を文字参照化する
+	$target_string = str_replace("&","＆",$target_string);
+	$target_string = str_replace("<","＜;",$target_string);
+	$target_string = str_replace(">","＞",$target_string);
+	$target_string = str_replace('"',"",$target_string);
+
 	$target_string = ereg_replace("(\r\n|\r|\n)","<br />",$target_string);
-	if (mb_strlen($target_string) > $max_size){
+	if (mb_strlen($target_string,"UTF8") > $max_size){
 		die("文字列が大きすぎます！！");
 	}
 	return $target_string;

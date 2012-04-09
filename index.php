@@ -48,6 +48,15 @@ $(function(){
 	<title>レジスタンス・チャット</title>
 </head>
 <body>
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/ja_JP/all.js#xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
     <div id="header">
 	<h1><img src="./regi-logo.png"></h1>
 	<h2>過去ログ</h2>
@@ -58,6 +67,10 @@ $(function(){
 	<p><a href="http://twitter.com/resistancechat/">レジスタンスチャット告知用アカウント</a></p>
 	<p>mail to esehara at gmail dot com</p>
 	<p>なんか変なところなどが見つかりましたら、教えてくれるとありがたいです。</p>
+<div class="fb-like" data-href="http://www45045u.sakura.ne.jp/registance/" data-send="true" data-layout="button_count" data-width="450" data-show-faces="true"></div>
+<br />
+<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://www45045u.sakura.ne.jp/registance/" data-via="ResistanceChat" data-lang="ja">ツイート</a>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
 	<h2>概要</h2>
 	<p>　一言で述べるならば、<a href="http://www.wolfg.x0.com/">汝は人狼なりや？</a>みたいなシステムです。しかし、人狼のシステムを改良しており、下のような違いがあります。</p>
 	<ul>

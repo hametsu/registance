@@ -1,0 +1,458 @@
+ 
+$big_message: 10px
+
+html
+  margin: 0px
+  padding: 0px
+  width: 100%
+
+body
+  @extend html
+  margin: 0px
+  padding: 0px
+  width: 100%
+  background-color: #356
+
+#main
+  position: relative
+
+@mixin message_design
+  border: 1px solid #3D545C
+  border-radius: $big_message
+  -moz-border-radius: $big_message
+  -webkit-border-radius: $big_message
+  margin:
+    right: 10px
+  font-weight: bold
+  background: -moz-linear-gradient(top,#DCF0F0,#FFF)
+  background: -webkit-gradient(linear,left top,left bottom,from(#DCF0F0),to(#FFF))
+  background-color: #DCF0F0
+  color: #3D545C
+  padding: 5px
+
+@mixin warning_design
+  border: 1px solid #5C3D3D
+  border-radius: $big_message
+  -moz-border-radius: $big_message
+  -webkit-border-radius: $big_message
+  margin-right: 10px
+  font-weight: bold
+  background-color: #F0DCDC
+  background: -moz-linear-gradient(top,#F0DCDC,#FFFFFF)
+  background: -webkit-gradient(linear,left top,left bottom,from(#F0DCDC), to(#FFFFFF))
+  color: #5C3D3D
+  padding: 5px
+
+#header
+  height: 100% auto
+  float: left
+  width: 30%
+  margin: 20px
+  border: 5px solid #D9D926
+  background-color: white
+  li
+    list-style-type: none
+    line-height: 1.5em
+  h1
+    margin: 0px
+    padding: 20px
+    color: #FFF
+    background-color: #455C3D
+    background: -moz-linear-gradient(top,#455C3D,#739966)
+    background: -webkit-gradient(linear,left top,left bottom,from(#455C3D), to(#739966))
+    border-bottom: 5px solid #D9D926
+  p.message
+    @include message_design
+  div.vote
+    background-color: #E3E1EB
+    font-weight: bold
+    border:
+      top: 1px solid #399
+      bottom: 1px solid #399
+
+#log
+  font-size: 85%
+  height: 100% auto
+  background-color: #EEE
+  margin:
+    left: 35%
+  border: 5px solid #A3C2BA
+  padding:
+    bottom: 20px
+  h2
+    background-color: #4080C0
+    background: -moz-linear-gradient(top,#3080C0,#79A6D3)
+    background: -webkit-gradient(linear,left top,left bottom,from(#3080C0),to(#79A6D3))
+    color: #FFF
+    margin: 0px
+    padding: 5px
+    border-bottom: 5px solid #A3C3BA
+  li
+    padding: 5px
+    list-style-type: none
+    line-height: 1.5em
+  li.message
+    @include message_design
+    ul
+      li.member
+        border:
+          bottom: solid 1px #ACB0B0
+      li
+        h3
+          border-radius: $big_message
+          -moz-border-radius: $big_message
+          -webkit-border-radius: $big_message
+          margin: 0px
+          margin-bottom: 12px
+          padding: 10px
+          color: white
+          background-color: #3D545C
+  li.warning
+    @include warning_design
+  li.show_say
+    span.name
+      font-weight: bold
+    p
+      margin: 0px
+      padding: 0px
+  form
+    margin: 20px
+    margin:
+      left: 40px
+    width: 80%
+    line-height: 1.5em
+    padding: 10px
+    border: 1px dotted #AAA
+
+
+
+@mixin subtitle
+  color: #FFF
+  background-color: #66998C
+  border:
+    top:    5px solid #D9D926
+    bottom: 5px solid #D9D926
+  margin: 0px
+  padding: 0px
+
+@mixin oneline_block
+  display: inline
+  margin: 0px
+  padding: 0px
+  font-size: 12px
+  list-style-type: none
+  line-height: 1.5em
+  text-indent: 1px
+  li
+    display: inline
+    text-indent: 1px
+    padding: 10px
+
+#log_filter
+  padding: 0px
+  list-style-type: none
+  margin:
+    top: 10px
+    left: 35%
+    bottom: 10px 
+  background-color: #F0E1DC
+  h3
+    background-color: #9CA
+    border-radius: 5px
+    -moz-border-radius: 5px
+    -webkit-border-radius: 5px
+    padding: 5px
+  border: 5px solid #CC6E66
+  div.wrap_oneline
+    @include oneline_block
+    h3
+      display: inline
+    ul
+      margin:
+        top: 10px
+        bottom: 10px
+        left: 0px
+      padding: 0px
+      padding:
+        bottom: 10px
+      border:
+        bottom: 1px dashed #CC6E66
+    li
+      padding: 0px
+      margin: 2px
+      display: outside
+  div.wrap_float
+    float: left
+
+#sanka_list
+  border: 5px solid #A3C3BA
+  background-color: white
+  margin:
+    top: 10px
+    left: 35%
+  right: 0px
+  top: 0px
+  h2
+    @include subtitle
+    font-size: 110%
+  h3
+    margin: 0px
+    padding: 0px
+    font-size: 85%
+  ul.users
+    display: inline
+    margin: 0px
+    padding: 0px
+    font-size: 12px
+    list-style-type: none
+    line-height: 1.5em
+    text-indent: 1px
+    li
+      margin:
+        left: 10px
+        right: 10px
+  div#elect_member
+    font-weight: bold
+    background-color: #EBE8E1
+    margin:
+      top: 10px
+    padding:
+      top: 10px
+      bottom: 10px
+    border:
+      top: 1px solid #4CB3B3
+      bottom: 1px solid #4CB3B3
+  div.wrap_oneline
+    border-bottom: 1px solid #A3C3BA
+    padding: 5px
+    ul
+      @include oneline_block
+      li
+        span.leader
+          color: #737326
+          background-color: #FFC
+          font-weight: bold
+        span.team
+          font-weight: bold
+        span.spy
+          color: #733926
+          background-color: #F0BAA8
+          font-weight: bold
+    ul#mission_count
+      @include oneline_block
+      margin:
+        top: 0px
+        bottom: 0px
+      padding:
+        top: 0px
+        bottom: 0px
+      li
+        margin:
+          top: 0px
+          bottom: 0px
+        padding:
+          top: 3px
+          bottom: 3px
+      li#now_mission
+        background-color: #F9C
+        border: 1px solid #C96
+        font-weight: bold
+  div.wrap_float
+    ul
+      background-color: #FFF
+      border: 2px solid #A3C3BA
+      padding: 0px
+      float: left
+      margin: 0px
+      li
+        list-style-position: outside
+        margin: 5px
+        padding: 0px
+
+    li
+      list-style-type: none
+  .system_info
+    font-weight: bold
+    background-color: #83A39A
+    padding: 5px
+    color: white
+    border-radius: 5px
+    -moz-border-radius: 5px
+    -webkit-border-radius: 5px
+  li.your_party
+    span.spy
+      display: block
+      color: #733926
+      background-color: #F0BAA8
+      font-weight: bold
+
+
+#header
+  h2
+    @include subtitle
+  p
+    padding: 5px
+    line-height: 1.2em
+  form
+    margin: 30px
+  ul.menu
+    li
+      display: inline
+      a
+        border: 1px solid #66998C
+        background-color: #DCF0EB
+        padding: 10px
+  ul.users
+    li
+      border:
+        bottom: 2px solid #DDD
+  span.warning
+    @include warning_design
+
+@mixin history_name($background_color,$border_color,$sub_border)
+  background-color: $background_color
+  border: 2px solid $border_color
+  .name
+    border-bottom: 2px solid $border_color
+  ul
+    li
+      border-bottom: 1px solid $sub_border
+
+#history_list
+  padding: 0px
+  margin: 0px
+  li.spy
+    @include history_name(#F07070,#C00,#F33)
+  li.registance
+    @include history_name(#70B0F0,#039,#36B)
+  li
+    margin:
+      top: 5px
+      bottom: 5px
+    list-style-position: outside
+    padding: 10px
+    border-radius: 5px
+    -moz-border-radius: 5px
+    -webkit-border-radius: 5px
+    ul
+      padding: 0px
+      margin: 0px
+      li
+        border-radius: 0px
+        -moz-border-radius: 0px
+        -webkit-border-radius: 0px
+        padding: 0px
+        margin: 0px
+        padding-top: 5px
+        padding-bottom: 5px
+        list-style-position: outside
+        font-size: 85%
+
+#sucess
+  padding: 10px
+  background-color: #4080C0
+  color: #FFF
+  font-size: 1.5em
+  border:
+    bottom: 2px solid #4080C0
+
+#falsed
+  padding: 10px
+  background-color: #C04040
+  color: #FFF
+  font-size: 1.5em
+  border:
+    bottom: 2px solid #C04040
+
+//
+  CSS for Sayitem
+
+$min_message: 7px
+div.sayitem
+  margin:
+    right: 20px
+  border:
+    radius: $big_message
+  -moz-border-radius: $big_message
+  -webkit-border-radius: $big_message
+  padding: 15px
+  span
+    border-radius: $min_message
+    -moz-border-radius: $min_message
+    -webkit-border-radius: $min_message
+    font-weight: bold
+    display: block
+    width: 100%
+    padding: 5px
+    padding-right: 0px
+  span.log_name
+    color: white
+  span.search_result
+    display: inline
+    border-radius: 0px
+    -moz-border-radius: 0px
+    -webkit-border-radius: 0px
+
+span.warning
+  display: block
+
+.dialog
+  padding: 10px
+  background: #999
+  .name
+    display: block
+    font-weight: bold
+    border-bottom: 1px solid #666
+@mixin sayitem_template($top_color,$bottom_color,$name_color)
+  background: -moz-linear-gradient(top,$top_color,$bottom_color)
+  background: -webkit-gradient(linear,left top,left bottom,from($top_color),to($bottom_color))
+  background-color: white
+  border: 2px solid $name_color
+  color: $name_color
+  span.log_name
+    background-color: $name_color
+
+div.black
+  @include sayitem_template(#FFF,#EEE,black)
+
+div.maroon
+  @include sayitem_template(#FFF,#F0A8A8,maroon)
+
+div.purple
+  @include sayitem_template(#FFF,#C0BBFF,purple)
+
+div.green
+  @include sayitem_template(#FFF,#A8F0BA,green)
+
+div.olive
+  @include sayitem_template(#FFF,#F0DEA8,olive)
+
+div.navy
+  @include sayitem_template(#FFF,#DDF,navy)
+
+div.teal
+  @include sayitem_template(#FFF,#AAF0D9,teal)
+
+div.gray
+  @include sayitem_template(#FFF,#F0F0F0,gray)
+
+div.fuchsia
+  @include sayitem_template(#FFF,#FF99F9,fuchsia)
+
+div.orangered
+  @include sayitem_template(#FFF,#FFAC89,orangered)
+
+div.show_say
+  @include sayitem_template(#0A5C47,#0F8A6B,white)
+
+.timestamp
+  background-color: transparent
+  font-size: 8px
+  text-align: right
+  color: #666
+
+.search_result
+  background-color: #FF0
+  padding: 2px
+  font-weight: bold
+  display: inline

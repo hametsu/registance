@@ -7,6 +7,7 @@ require_once("singletonclass.php");
 class RoomInfo extends Singleton {
 
 	private $file;
+	public  $cgi_file;
 	private $room_data;
 	private $room_user = array();
 	private $vote_user = array();
@@ -14,9 +15,14 @@ class RoomInfo extends Singleton {
 	private $mission_success = 0;
 	private $mission_failure = 0;
 
-	public function loadfile($file_name) {
-		$this->file = $file_name;
-		$this->room_data = eseFile($file_name);
+	public function loadfile($file_name,$test_mode) {
+		$this->cgi_file = "$file_name";
+		if ($test_mode) {
+			$this->file = "$file_name";
+		} else {
+			$this->file = "data/$file_name";
+		}
+		$this->room_data = eseFile($this->file);
 		$this->parse_user();
 		$this->parse_vote_user();
 		$this->parse_mission_user();
@@ -26,6 +32,7 @@ class RoomInfo extends Singleton {
 	private function parse_user() {
 		$this->room_user = array();
 		$parse_users = $this->room_data[2] === "\n" ? array() : explode(",",trim($this->room_data[2]));
+		if ($parse_users !== array("")) {
 		for ($i = 0;$i < count($parse_users);$i += 2){
 			$set_user = new RoomUser($parse_users[$i],$parse_users[$i + 1]);
 			array_push($this->room_user,$set_user);
@@ -34,6 +41,7 @@ class RoomInfo extends Singleton {
 			} elseif ($parse_users[$i + 1] === "failure") {
 				$this->mission_failure ++;
 			}
+		}
 		}
 	}
 
@@ -110,8 +118,10 @@ class RoomInfo extends Singleton {
 	//method for mission_user
 	private function parse_mission_user() {
 		$parse_mission_users = $this->room_data[12] == "\n" ? array() : explode(",",trim($this->room_data[12]));
+		if ($parse_mission_users !== array("")){
 		for($i = 0;$i < count($parse_mission_users);$i += 2) {
 			$this->set_mission_to_user($parse_mission_users[$i],$parse_mission_users[$i + 1]);
+		}
 		}
 	}
 	public function set_mission_user($name,$vote) {
@@ -121,6 +131,7 @@ class RoomInfo extends Singleton {
 		} else {
 			$this->room_data[12] = trim($this->room_data[12]) . ",$name,$vote\n";
 		}
+		$this->add_log("system","message","green","【" . $name . "】さんは、ミッションを遂行しました。");
 	}
 
 	public function get_user_mission($name) {
@@ -163,8 +174,10 @@ class RoomInfo extends Singleton {
 	//method for vote_user
 	private function parse_vote_user() {
 		$parse_vote_users = $this->room_data[10] === "\n" ? array() : explode(",",trim($this->room_data[10]));
+		if ($parse_vote_users !== array("")){
 		for ($i = 0;$i < count($parse_vote_users);$i += 2){
 			$this->set_vote_to_user($parse_vote_users[$i],$parse_vote_users[$i + 1]);
+		}
 		}
 	}
 
@@ -197,17 +210,30 @@ class RoomInfo extends Singleton {
 
 	public function set_vote_user($name,$vote){
 		$max = count($this->room_user);
+		
+		
 		$this->set_vote_to_user($name,$vote);
+		
 		for($i = 0;$i < $max;$i++){
 			if ($name === $this->room_user[$i]->username){
+				if ($this->room_user[$i]->vote === NULL){
+					$this->add_log("system","message","green", $name . "さんは投票を行いました。");
+					} else {
+					$this->add_log("system","message","green", $name . "さんは投票を行いました。");
+				}
 				$this->room_user[$i]->vote = $vote;
 			}
 		}
-		if ($this->room_data[10] === "\n"){
-			$this->room_data[10] = "$name,$vote\n"; 
-		} else {
-			$this->room_data[10] = trim($this->room_data[10]) . ",$name,$vote\n";
+		$room_data_string = "";
+
+		foreach($this->room_user as $user_item){
+			if ($user_item->vote !== NULL){
+			$room_data_string = $room_data_string === "" ? $user_item->username . "," . $user_item->vote : $room_data_string . "," . $user_item->username . "," . $user_item->vote;
+			}
 		}
+
+		$this->room_data[10] = $room_data_string . "\n";
+
 	}
 
 	public function count_vote() {
@@ -260,7 +286,9 @@ class RoomInfo extends Singleton {
 	public function set_spylist() {
 		$set_user = array();
 		$count_spy = $this->count_spy();
+		
 		if (count($this->get_want_spy_user()) === 0){
+			//スパイ希望者がいない場合は、そのままユーザー配列を渡す
 			$get_user = $this->get_users_array();
 		} elseif ($count_spy > count($this->get_want_spy_user())) {
 			$not_spy_user = $this->get_users_array();
@@ -268,7 +296,7 @@ class RoomInfo extends Singleton {
 			foreach($get_user as $push_user){
 				array_push($set_user,$push_user);
 				for ($i = 0;$i < count($not_spy_user);$i++){
-					if ($not_spy_user === $push_user) {
+					if ($not_spy_user[$i] === $push_user) {
 						$not_spy_user[$i] = "";
 						break;
 					}
@@ -278,6 +306,7 @@ class RoomInfo extends Singleton {
 		} else {
 			$get_user = $this->get_want_spy_user();
 		}
+		//スパイの選択を始める
 		shuffle($get_user);
 		for ($i = 0;count($set_user) < $count_spy;$i++){
 			$push_user = array_shift($get_user);
@@ -315,7 +344,41 @@ class RoomInfo extends Singleton {
 	}
 
 	public function get_room_people(){
-		return (int) trim($this->room_data[4]);
+		$data_array = explode(",",trim($this->room_data[4]));
+		return (int) $data_array[0];
+	}
+
+	public function set_room_people($i) {
+		$data_array = explode(",",trim($this->room_data[4]));
+		$data_array[0] = $i;
+		$this->room_data[4] = implode(",",$data_array) . "\n";
+	}
+
+	public function can_start_game() {
+		$user_count = count($this->get_users());
+		return ($user_count >= 5 and $user_count <= 10);
+	}
+
+	public function get_vote_start() {
+		return array_slice(explode(",",trim($this->room_data[4])),1);
+	}
+
+	public function set_vote_start($username) {
+		foreach($this->get_vote_start() as $vote_item) {
+			if ($vote_item === $username) { return FALSE; }
+		}
+		if($this->is_user($username)){
+			$this->room_data[4] = trim($this->room_data[4]) . "," . $username . "\n";
+		}
+	}
+
+	public function is_vote_start($username) {
+		foreach($this->get_vote_start() as $vote_item){
+			if ($vote_item === $username) {
+				return TRUE;
+			}
+		}
+		return FALSE;
 	}
 
 	public function get_scene() {
