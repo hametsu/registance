@@ -1,5 +1,12 @@
 <?php
 
+//ある時間間更新されていないファイルであるかどうかをチェックする関数
+function is_room_previous_time($filename,$check_time) {
+
+	return (time() - filemtime($filename)) <= $check_time;
+
+}
+
 //ステータスをファイル同士で更新する関数の作成
 function reflesh_state($room_inform,$set_state,$reflash_room_list){
 	//Room listの更新

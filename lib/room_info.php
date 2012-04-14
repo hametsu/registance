@@ -26,6 +26,10 @@ class RoomInfo extends Singleton {
 		$this->parse_user();
 		$this->parse_vote_user();
 		$this->parse_mission_user();
+		if ($this->get_states() === "processing"
+			and $this->is_room_anonymous() !== "false") {
+			$this->set_user_anonymous_name();
+		}
 	}
 
 	//method for users
@@ -131,6 +135,11 @@ class RoomInfo extends Singleton {
 		} else {
 			$this->room_data[12] = trim($this->room_data[12]) . ",$name,$vote\n";
 		}
+
+		if ($this->is_room_anonymous() !== "false") {
+			$name = $this->get_username_to_anonymous($name);
+		}
+
 		$this->add_log("system","message","green","【" . $name . "】さんは、ミッションを遂行しました。");
 	}
 
@@ -218,7 +227,10 @@ class RoomInfo extends Singleton {
 			if ($name === $this->room_user[$i]->username){
 				if ($this->room_user[$i]->vote === NULL){
 					$this->add_log("system","message","green", $name . "さんは投票を行いました。");
-					} else {
+				} else {
+					if ($this->is_room_anonymous() !== "false") {
+						$name = $this->room_user[$i]->anonymous_name;
+					}
 					$this->add_log("system","message","green", $name . "さんは投票を行いました。");
 				}
 				$this->room_user[$i]->vote = $vote;
@@ -259,6 +271,14 @@ class RoomInfo extends Singleton {
 
 	public function get_spylist() {
 		return $this->room_data[3] === "\n" ? array() : explode(",",trim($this->room_data[3]));
+	}
+
+	public function get_anonymous_spylist() {
+		$parse_anonymous = Array();
+		foreach ($this->get_spylist() as $spy_item){
+			array_push($parse_anonymous,$this->get_username_to_anonymous($spy_item));
+		}
+		return $parse_anonymous;
 	}
 
 	public function is_spy($target_name) {
@@ -468,7 +488,18 @@ class RoomInfo extends Singleton {
 	}
 
 	public function set_team_member($target_member){
-		$this->room_data[9] = implode(",",$target_member) . "\n"; 
+			$this->room_data[9] = implode(",",$target_member) . "\n"; 
+	}
+
+	public function parse_team_to_username() {
+		if ($this->is_room_anonymous() !== "false"){
+			$anonymous_to_user_array = Array();
+			
+			foreach($this->get_team_member() as $member_item){
+				array_push($anonymous_to_user_array,$this->get_anonymous_name_to_user($member_item));
+			}
+			$this->room_data[9] = implode(",",$anonymous_to_user_array) . "\n";
+		}
 	}
 
 	public function is_team_member($name){
@@ -524,17 +555,99 @@ class RoomInfo extends Singleton {
 		$this->room_data[14] = $this->room_data[14] === "\n" ? $setpoint . "\n" : trim($this->room_data[14]) . "," . $setpoint . "\n";
 	}
 
-	const START_LOG_LINE = 16;
+	const START_LOG_LINE = 17;
 	public function add_log($username,$comd,$color,$message) {
 		if(!isset($this->room_data[self::START_LOG_LINE])) {
 			$this->room_data[self::START_LOG_LINE] = "$username,$comd,$color,$message," . (string) time() . "\n";
 		} else {
 			array_splice($this->room_data,self::START_LOG_LINE,0,"$username,$comd,$color,$message," . (string) time() . "\n");
 		}
-	}	
+	}
+
+	public function is_room_anonymous() {
+		$is_room_anonymous = explode(",",trim($this->room_data[16]));
+		return $is_room_anonymous[0];
+	}
+
+	public function get_username_to_anonymous($target_username) {
+		foreach($this->room_user as $user_item) {
+			if ($user_item->username === $target_username) {
+				return $user_item->anonymous_name;
+			}
+		}
+	}
+
+	public function new_user_anonymous_name($debug = null) {
+		$max = count($this->room_user);
+		if ($debug === "test"){
+			for ($i = 0;$i < $max;$i++){
+				$this->room_user[$i]->anonymous_name = null;
+			}
+		} else {
+			$anonymous_name_set = Array(
+				"ルパン","ボンド","オーウェル","ヘンリー","クラーク","ハインライン","アシモフ","イーガン","ウルフ","ギブスン"
+				,"ザミャーチン");
+			shuffle($anonymous_name_set);
+			for ($i = 0;$i < $max;$i++){
+				$this->room_user[$i]->anonymous_name = array_shift($anonymous_name_set);
+			}
+			
+			$this->anonymous_name_to_data();
+		}
+	}
+
+	public function anonymous_name_to_data() {
+
+	if ($this->is_room_anonymous() === "false") {
+		$this->room_data[16] = "false\n";
+	} else {
+		$write_string = "true";
+		foreach ($this->room_user as $user_item){
+			$write_string .= "," . $user_item->username . "," . $user_item->anonymous_name;
+		}
+		$this->room_data[16] = $write_string . "\n";
+	}
+	
+	}
+
+	public function set_user_anonymous_name() {
+		$parse_anonymous_name = explode(",",trim($this->room_data[16]));
+		$max_anonymous_name = count($parse_anonymous_name);
+
+		for ($i = 1;$i < $max_anonymous_name;$i = $i + 2){
+			$this->set_user_to_anonymous_name($parse_anonymous_name[$i],$parse_anonymous_name[$i + 1]);
+		}
+
+	}
+
+	public function get_anonymous_name_to_user($target_anonymous_name) {
+		foreach($this->room_user as $user_item) {
+			if ($user_item->anonymous_name === $target_anonymous_name) {
+				return $user_item->username;
+			}
+		}
+	}
+
+	public function set_user_to_anonymous_name($target_user,$anonymous_name) {
+		$max_user = count($this->room_user);
+
+		for ($i = 0; $i < $max_user;$i ++){
+			if ($this->room_user[$i]->username === $target_user) {
+				$this->room_user[$i]->anonymous_name = $anonymous_name;
+			}
+		}
+	}
+
+	/*
+	public function set_user_anonymous_name("false") {
+		
+	}
+	 */
 
 	public function set_waiting_to_processing() {
-
+		if ($this->is_room_anonymous() !== "false") {
+			$this->new_user_anonymous_name();
+		}
 		$this->set_mission_no(1);
 		$this->shuffle_users();
 		$this->set_states("processing");

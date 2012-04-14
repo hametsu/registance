@@ -41,6 +41,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET'){
 	fwrite($file_access,"\n");//[13] ミッションに賛成か否か
 	fwrite($file_access,"\n");//[14] ミッションの失敗/成功のカウント
 	fwrite($file_access,"\n");//[15] ミッションでどっちが勝利したか 
+	if($_POST["anonymous"] === "check") {
+		fwrite($file_access,"true\n");
+	} else {
+		fwrite($file_access,"false\n");
+	}
 	flock($file_access, LOCK_UN);
 	fclose($file_access);
 }

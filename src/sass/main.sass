@@ -69,6 +69,18 @@ body
     border:
       top: 1px solid #399
       bottom: 1px solid #399
+  #limit_timer
+    margin: 0px
+    margin:
+      top: 10px
+    padding: 0px
+    font-size: 200%
+    text-align: center
+  .caption
+    text-align: center
+    font-size: 70%
+    margin: 0px
+    padding: 0px
 
 #log
   font-size: 85%
@@ -369,13 +381,21 @@ body
 
 $min_message: 7px
 div.sayitem
+  p
+    padding:
+      right: 10px
+      left: 10px
   margin:
     right: 20px
   border:
     radius: $big_message
   -moz-border-radius: $big_message
   -webkit-border-radius: $big_message
-  padding: 15px
+  padding:
+    top: 0px
+    bottom: 0px
+    left: 0px
+    right: 5px
   span
     border-radius: $min_message
     -moz-border-radius: $min_message
@@ -444,8 +464,13 @@ div.orangered
 
 div.show_say
   @include sayitem_template(#0A5C47,#0F8A6B,white)
+  background-color: #0A5C47
 
 .timestamp
+  display: block
+  margin: 0px
+  padding: 0px
+  padding-right: 10px
   background-color: transparent
   font-size: 8px
   text-align: right

@@ -99,6 +99,7 @@ class ShowInfo extends Singleton {
 		echo "<h2>既にゲームが開始しています。</h2>";
 
 	}
+	echo "<p>観戦者コメントを残すことができます。</p>";
 	echo "<form action='./show.php?file=" . $this->RoomInfo->cgi_file . "' method='POST'>
 		名前：<input type='textarea' name='name' value='". $this->Session["show" . $this->RoomInfo->get_filename()] .
 		"' /><br /><textarea name='show_say' style='width:95%' rows='2' id='say'></textarea>
@@ -111,9 +112,15 @@ class ShowInfo extends Singleton {
 		<form action='./show.php?file=" . $this->RoomInfo->cgi_file . "' method='POST' name='say'>
 		";
 		//<span style='color:#AAA;' id='counttext'>0</span>
-	echo "<span class='name'>" 
-		  . $this->Session[$this->get_session_name()] . 
-		  "</span><br /> <textarea name='say'style='width:95%' rows='2' id='say' /></textarea>";
+	echo "<span class='name'>";
+	if ($this->RoomInfo->is_room_anonymous() === "false") {
+		$show_name_string = $this->Session[$this->get_session_name()];
+	} else {
+		$show_name_string = $this->RoomInfo->get_username_to_anonymous($this->Session[$this->get_session_name()]);
+		$show_name_string .= "(" . $this->Session[$this->get_session_name()] . ")";
+	}
+	echo $show_name_string;
+	echo "</span><br /> <textarea name='say'style='width:95%' rows='2' id='say' /></textarea>";
 
 	$color_list = array("black","maroon","purple","green","olive","navy","teal","gray","fuchsia","orangered");
 	foreach ($color_list as $color_item){
@@ -243,8 +250,13 @@ class ShowInfo extends Singleton {
 	</div>
 	<div class="wrap_oneline">
 	<div style="margin-bottom:5px;">
-		<span class="system_info" style="height:100%">選ばれる人数</span><br />
-	</div>
+	<span class="system_info" style="height:100%">選ばれる人数</span>';
+	if (count($this->RoomInfo->get_users()) > 6) {
+		echo "<span style='font-size:8px;color:#666;border-bottom:1px solid #666'>
+			  「※」は、スパイ側が2つ以上の「失敗」を必要とすることを意味します。</span>
+	";
+	}
+	echo '<br /></div>
 	<ul id="mission_count">';
 	$counter = 0;
 	foreach($this->RoomInfo->get_need_team_array() as $team_number){
@@ -267,8 +279,32 @@ class ShowInfo extends Singleton {
 	}
 	echo "</ul>";
 	echo "</div>";
-}
+	}
 	
+	}
+
+	public function latest_system_time() {
+
+		$room_data = $this->RoomInfo->get_raw_roomdata();
+		if(!isset($room_data[16])) {
+			return 0;
+		} else {
+			$room_log = array_splice($room_data,16);
+			foreach($room_log as $log_line) {
+				$log_array = explode(",",$log_line);
+				if ($log_array[1] === 'warning') {
+					return $log_array[4];
+				}
+			}
+		}
+			return 0;
+	}
+
+	public function system_limit_time() {
+		$latest_time = $this->latest_system_time();
+		$limit_time = 900;
+		$return_val = $limit_time - (time() - $latest_time);
+		return $return_val <= 0 ? 0 : $return_val;
 	}
 
 }

@@ -20,7 +20,7 @@ $room_file = $_GET['file'];
 $room_file = str_replace("/","",$room_file);
 $is_filter = $_GET['filter'] === "on";
 /*
-$room_file = "1333905152.dat";
+$room_file = "1334431773.dat";
 $_POST = array("name" => "opera",
 			   "pass" => "opera");
 $_SESSION = array("name" . "data/" . $room_file => "chrome");
@@ -112,7 +112,8 @@ if (($roominfo->get_states() === "waiting")
 	$roominfo->set_room_people(count($roominfo->get_users()));
 	$roominfo->set_waiting_to_processing();
 	$roominfo->set_scene("team");
-	$roominfo->add_log("system","warning","red","【" . $roominfo->get_now_leader() . "】が、リーダーとして選出されました。");
+	$leader_anonymous_or_not = $roominfo->is_room_anonymous() === "false" ? $roominfo->get_now_leader() : $roominfo->get_username_to_anonymous($roominfo->get_now_leader());
+	$roominfo->add_log("system","warning","red","【" . $leader_anonymous_or_not. "】が、リーダーとして選出されました。");
 	$roominfo->write_room_data();
 }
 
@@ -161,9 +162,11 @@ if ($roominfo->get_states() === "waiting"){
 		if ($is_browse_leader 
 			&& ($_POST['command'] === 'select_member') 
 			&& (count($_POST['select_user']) === $roominfo->get_need_team_member())){
+				
+				$anonymous_or_not = $roominfo->is_room_anonymous() === "false" ? $_SESSION["name" . $roominfo->get_filename()] : $roominfo->get_username_to_anonymous($_SESSION["name" . $roominfo->get_filename()]);
 
 				//チームを選択する
-				$save_data = $_SESSION["name" . $roominfo->get_filename()] . "さんは、【" . implode("、",$_POST['select_user']) . "】を、チームとして選びました。";
+				$save_data = $anonymous_or_not . "さんは、【" . implode("、",$_POST['select_user']) . "】を、チームとして選びました。";
 				$roominfo->add_log("system","warning","red",$save_data);
 				$roominfo->set_scene("vote");
 				$roominfo->set_team_member($_POST['select_user']);
@@ -200,7 +203,9 @@ if($roominfo->get_scene() === "vote"){
 		$save_data .= "<li><h3>投票結果</h3></li>";
 		//投票者の統計をログに流す
 		foreach($roominfo->get_users() as $get_user){
-			$save_data .= "<li class='member'>" . $get_user->username . "さん ::【" . ($get_user->vote === "trust" ? "信任" : "不信任") . "】に投票。</li>";
+			$save_data .= "<li class='member'>";
+			$save_data .= $roominfo->is_room_anonymous() === "false" ? $get_user->username : $get_user->anonymous_name;
+			$save_data .= "さん ::【" . ($get_user->vote === "trust" ? "信任" : "不信任") . "】に投票。</li>";
 			if ($get_user->vote === "trust"){
 				$is_team_trust ++;
 			}
@@ -210,19 +215,20 @@ if($roominfo->get_scene() === "vote"){
 		
 		//投票者の初期化
 		$roominfo->reset_vote_user();
-
+		$leader_anonymous_or_not = $roominfo->is_room_anonymous() === "false" ? $roominfo->get_now_leader() : $roominfo->get_username_to_anonymous($roominfo->get_now_leader());
 		if ($is_team_trust > (count($roominfo->get_users_array()) / 2)){
-			$roominfo->add_log("system","warning","red","【" . $roominfo->get_now_leader() . "】が選んだチーム(" . implode("、",$roominfo->get_team_member()) . ")は信任されました。");   
+			$roominfo->add_log("system","warning","red","【" . $leader_anonymous_or_not . "】が選んだチーム(" . implode("、",$roominfo->get_team_member()) . ")は信任されました。");   
+			$roominfo->parse_team_to_username();
 			$roominfo->set_scene("mission");
 		} else {
-			$roominfo->add_log("system","warning","red","【" . $roominfo->get_now_leader() . "】が選んだチーム(" . implode("、",$roominfo->get_team_member()) . ")は不信任にされました。");
+			$roominfo->add_log("system","warning","red","【" . $leader_anonymous_or_not . "】が選んだチーム(" . implode("、",$roominfo->get_team_member()) . ")は不信任にされました。");
 			
 			$roominfo->set_scene("team");
 			$roominfo->reset_team_member();
 
 			$is_browse_leader   = $roominfo->is_leader($_SESSION["name" . $roominfo->get_filename()]);
-
-			$roominfo->add_log("system","warning","red","【" . $roominfo->get_now_leader() . "】が、リーダーとして選出されました。");
+			$leader_anonymous_or_not = $roominfo->is_room_anonymous() === "false" ? $roominfo->get_now_leader() : $roominfo->get_username_to_anonymous($roominfo->get_now_leader());
+			$roominfo->add_log("system","warning","red","【" . $leader_anonymous_or_not . "】が、リーダーとして選出されました。");
 
 		}
 			$roominfo->write_room_data($room_info,$room_data);
@@ -264,7 +270,8 @@ if($roominfo->get_scene() === "mission"
 
 		//Missionを初期化する
 		$roominfo->set_scene("team");
-		$roominfo->add_log("system","warning","red","【" . $roominfo->get_now_leader() . "】が、リーダーとして選出されました。");
+		$leader_anonymous_or_not = $roominfo->is_room_anonymous() === "false" ? $roominfo->get_now_leader() : $roominfo->get_username_to_anonymous($roominfo->get_now_leader());
+		$roominfo->add_log("system","warning","red","【" . $leader_anonymous_or_not . "】が、リーダーとして選出されました。");
 		
 		//リーダーの決定
 		//デバック用の代入
@@ -301,8 +308,9 @@ if ($roominfo->get_states() === "processing"){
 		}
 		$save_data = "やりましたね！無事、レジスタンスを妨害し、【スパイ側の勝利】です。";
 	}
-	$roominfo->add_log("system","warning","red",$save_data);
-	$roominfo->add_log("system","warning","red","今回は、【" . implode("、",$roominfo->get_spylist()) . "】の方々がスパイでした。おつかれさま！");
+		$roominfo->add_log("system","warning","red",$save_data);
+		$show_spy_list = $roominfo->is_room_anonymous() !== "false" ? $roominfo->get_anonymous_spylist() : $roominfo->get_spylist();
+	$roominfo->add_log("system","warning","red","今回は、【" . implode("、",$show_spy_list) . "】の方々がスパイでした。おつかれさま！");
 	$roominfo->write_room_data($room_info,$room_data);
 }
 }
@@ -353,7 +361,13 @@ if(isset($_SESSION[$room_file])){
 			$save_data = $_POST['color'].",".$_POST['say'];
 		}
 		 */
-		$roominfo->add_log($user_name,$_POST['type'],$_POST['color'],$_POST['say']);
+		$exsist_user = FALSE;
+		$exsist_user = $roominfo->is_user($user_name);
+		if (!$exsist_user){
+			session_destroy();
+			die("不正な操作 - 参加していないユーザーから書き込もうとしました");
+		}
+		
 		$_tempSESSION = $_SESSION;
 		session_destroy();
 		session_start();
@@ -362,13 +376,14 @@ if(isset($_SESSION[$room_file])){
 		$_SESSION[$room_file] = TRUE;
 		$_SESSION["color$room_file"] = $_POST['color'];
 
-		$exsist_user = FALSE;
-		$exsist_user = $roominfo->is_user($user_name);
-		if (!$exsist_user){
-			session_destroy();
-			die("不正な操作 - 参加していないユーザーから書き込もうとしました");
-		}
 
+		if (     $roominfo->get_states() === "processing"
+			and  $roominfo->is_room_anonymous() !== "false") {
+
+				$user_name = $roominfo->get_username_to_anonymous($user_name);
+			}
+
+		$roominfo->add_log($user_name,$_POST['type'],$_POST['color'],$_POST['say']);
 		$roominfo->write_room_data();
 	}
 }
@@ -431,6 +446,29 @@ $(function(){
 			return true;
 		}
 	});
+<?php
+	echo "var limit_time = " . $showinfo->system_limit_time() . ";\n";
+?>
+
+setInterval(function(){
+		if (limit_time > 0) {
+			limit_time --;
+			var limit_minit = Math.floor(limit_time / 60).toString();
+			var limit_second = (limit_time % 60).toString();
+			if (limit_minit < 10) {
+				limit_minit = "0" + limit_minit;
+			}
+			if (limit_second < 10) {
+				limit_second = "0" + limit_second;
+			}
+
+			$("#limit_timer").fadeOut(300).fadeIn(300).text("" + limit_minit + ":" + limit_second);
+		}
+		
+		if (limit_time < 1) {
+			$("#limit_timer").css("color","#F00");
+		}
+	},1000);
 
 		/*
 		 * ログを更新する際に使われる、Pushの関数
@@ -515,7 +553,9 @@ echo "<li><a href='./show.php?file=" . $room_file . "'>更新する</a></li>";
 	<li><a href='./index.php'>玄関に戻る</a></li>
 	<li><a href='./doc/' target='registance_help'>HELP</a></li>
 	</ul>
-
+	<p id="limit_timer">00:00</p>
+	<p class="caption">議論時間の目安</p>
+	<p class="caption">(あくまで目安です。0分になっても、強制的にゲームは進行しません）</p>
 <?php
 
 //
@@ -558,7 +598,7 @@ case "processing":
 		echo "<div id='elect_member'> <form action='./show.php?file=$room_file' method='POST'>
 			<input type='hidden' name='command' value='select_member' />";
 		foreach($roominfo->get_users() as $show_user){
-			echo "<li><input type='CHECKBOX' name='select_user[]' value='" . $show_user->username . "' />";
+			echo "<li><input type='CHECKBOX' name='select_user[]' value='" . ($roominfo->is_room_anonymous() === "false" ? $show_user->username : $show_user->anonymous_name) . "' />";
 
 			if($show_user->username === $roominfo->get_now_leader()){
 				echo "<span class='leader'>【リーダー】</span>";
@@ -572,7 +612,13 @@ case "processing":
 				echo "<span class='team'>【チーム】</span>";
 			}
 
-			echo $show_user->username . "</li>";
+			if($roominfo->is_room_anonymous() === "false"){
+			echo $show_user->username;
+			} else {
+			echo $show_user->anonymous_name;
+			}
+
+			echo"</li>";
 		}
 		echo "<input type='submit' value='選択する' />";
 		echo "</form></div>";  
@@ -592,8 +638,21 @@ case "processing":
 				echo "<span class='team'>【チーム】</span>";
 			}
 
+			if($show_user->vote !== NULL){
+				echo "<span style='font-weight:bold;color:red'>";
+			}
 
-			echo $show_user->username . "</li>";
+			if($roominfo->is_room_anonymous() === "false") {
+				echo $show_user->username;
+			} else {
+				echo $show_user->anonymous_name;
+			}
+
+			if($show_user->vote !== NULL){
+				echo "</span>";
+			}
+
+			echo "</li>";
 		}
 	}
 	break;
@@ -603,7 +662,12 @@ case "end":
 		if ($roominfo->is_spy($show_user->username)){
 			echo "【スパイ】";
 		}
-		echo $show_user->username ."</li>";
+		if ($roominfo->is_room_anonymous() !== "false") {
+			echo $show_user->anonymous_name . "(" . $show_user->username . ")";
+		} else {
+			echo $show_user->username;
+		}
+		echo "</li>";
 	}
 	break;
 }
@@ -710,7 +774,7 @@ if(!isset($room_data[16])){
 		switch($log_array[1]){
 		case "say":
 			if (!$is_filter){
-			echo "<li style='color:".$log_array[2]."'><div class='sayitem ". $log_array[2] . "'><span class='log_name'>".$log_array[0].":</span><p>".$log_array[3]."</p><span class='timestamp'>" . date("G時i分s秒に発言",$log_array[4]) ."</span></div></li>";
+			echo "<li style='color:".$log_array[2]."'><div class='sayitem ". $log_array[2] . "'><span class='log_name'>".$log_array[0].":</span><p>".$log_array[3]."</p></div><span class='timestamp'>" . date("G時i分s秒に発言",$log_array[4]) ."</span></li>";
 			}
 			break;
 		/*
@@ -746,7 +810,7 @@ if(!isset($room_data[16])){
 			break;
 			case "show_say":
 				if(($roominfo->get_states() === 'waiting'
-					and $roominfo->get_states() === 'end')
+					or $roominfo->get_states() === 'end')
 					or (!$showinfo->is_your_connection())){
 					echo "<li class='show_say' style='color:#CCC;'><div class='sayitem show_say'><p><span class='name'>" . $log_array[0] . "(一般市民)の感想 : </span></p><p>" . $log_array[3] . "</p></div></li>";
 					}

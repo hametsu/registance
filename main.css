@@ -47,6 +47,17 @@ body {
     font-weight: bold;
     border-top: 1px solid #339999;
     border-bottom: 1px solid #339999; }
+  #header #limit_timer {
+    margin: 0px;
+    margin-top: 10px;
+    padding: 0px;
+    font-size: 200%;
+    text-align: center; }
+  #header .caption {
+    text-align: center;
+    font-size: 70%;
+    margin: 0px;
+    padding: 0px; }
 
 #log {
   font-size: 85%;
@@ -362,7 +373,13 @@ div.sayitem {
   border-radius: 10px;
   -moz-border-radius: 10px;
   -webkit-border-radius: 10px;
-  padding: 15px; }
+  padding-top: 0px;
+  padding-bottom: 0px;
+  padding-left: 0px;
+  padding-right: 5px; }
+  div.sayitem p {
+    padding-right: 10px;
+    padding-left: 10px; }
   div.sayitem span {
     border-radius: 7px;
     -moz-border-radius: 7px;
@@ -486,11 +503,16 @@ div.show_say {
   background: -webkit-gradient(linear, left top, left bottom, from(#0a5c47), to(#0f8a6b));
   background-color: white;
   border: 2px solid white;
-  color: white; }
+  color: white;
+  background-color: #0a5c47; }
   div.show_say span.log_name {
     background-color: white; }
 
 .timestamp {
+  display: block;
+  margin: 0px;
+  padding: 0px;
+  padding-right: 10px;
   background-color: transparent;
   font-size: 8px;
   text-align: right;

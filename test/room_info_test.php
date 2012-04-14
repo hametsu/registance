@@ -10,7 +10,7 @@ class RoomInfoTest extends PHPUnit_Framework_TestCase
 		$roominfo->loadfile($file_name,TRUE);
 
 		$this->assertSame($roominfo->cgi_file,$file_name);
-		$this->assertSame(count($roominfo->get_raw_roomdata()),17);
+		$this->assertSame(count($roominfo->get_raw_roomdata()),18);
 
 		return $roominfo;
 
@@ -42,6 +42,58 @@ class RoomInfoTest extends PHPUnit_Framework_TestCase
 		$this->assertSame(count($roominfo->get_victory_point()),2);
 		$this->assertSame($roominfo->get_mission_victory(),"");
 	}
+
+	/**
+	 * @depends test_loadfile
+	 */
+	public function test_is_room_anonymous($roominfo) {
+		$this->assertSame($roominfo->is_room_anonymous(),"true");
+	}
+
+	/**
+	 * @depends test_loadfile
+	 */
+
+	public function test_get_room_anonymous_name($roominfo) {
+		
+	$roominfo->set_user_anonymous_name();
+	$this->assertSame($roominfo->get_user(0)->anonymous_name,"ボンド");
+
+	return $roominfo;
+	}
+	/**
+	 * @depends test_get_room_anonymous_name
+	 */
+	public function test_get_anonymous_name_to_user($roominfo) {
+		$check_anonymous_user = $roominfo->get_user(0);
+		$this->assertSame(
+			$roominfo->get_anonymous_name_to_user($check_anonymous_user->anonymous_name),
+			$check_anonymous_user->username
+		);
+	}
+
+	/**
+	 * @depends test_get_room_anonymous_name
+	 */
+	public function test_set_anonymous_name_by_false($roominfo) {
+		$roominfo->new_user_anonymous_name("test");
+		$this->assertTrue($roominfo->get_user(0)->anonymous_name === null);
+		return $roominfo;
+	}
+
+	/**
+	 * @depends test_set_anonymous_name_by_false
+	 */
+	public function test_set_anonymous_name($roominfo) {
+		$roominfo->new_user_anonymous_name();
+		$this->assertTrue($roominfo->get_user(0)->anonymous_name !== null);
+		$check_anonymous_user = $roominfo->get_user(0)->anonymous_name;
+		$roominfo->set_user_anonymous_name();
+
+		$this->assertSame($check_anonymous_user,$roominfo->get_user(0)->anonymous_name);
+	}
+
+
 	/**
 	 * @depends test_loadfile
 	 */
@@ -163,11 +215,11 @@ class RoomInfoTest extends PHPUnit_Framework_TestCase
 		$time_string = (string) time();
 		$roominfo->add_log("system","warning","red","ほげほげ");
 		$raw_data = $roominfo->get_raw_roomdata();
-		$this->assertSame($raw_data[16],"system,warning,red,ほげほげ,$time_string\n");
+		$this->assertSame($raw_data[17],"system,warning,red,ほげほげ,$time_string\n");
 		$roominfo->add_log("ほげ","say","black","ふがふが");
 		$raw_data = $roominfo->get_raw_roomdata();
-		$this->assertSame($raw_data[16],"ほげ,say,black,ふがふが,$time_string\n");
-		$this->assertSame($raw_data[17],"system,warning,red,ほげほげ,$time_string\n");
+		$this->assertSame($raw_data[17],"ほげ,say,black,ふがふが,$time_string\n");
+		$this->assertSame($raw_data[18],"system,warning,red,ほげほげ,$time_string\n");
 	}	
 
 	/**

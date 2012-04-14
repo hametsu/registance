@@ -6,7 +6,6 @@ include_once("./lib/eseUtil.php");
 //room.datが存在するかを保持する。
 $room_exist = file_exists("./data/room.dat");
 
-
 if ($room_exist){
 
 	$room_file = eseFile("./data/room.dat");
@@ -18,6 +17,7 @@ if ($room_exist){
 	foreach ($room_file as $room_data){
 		$room_data = str_replace("\n","",$room_data);
 		$room_arraydata =  explode(",",$room_data);
+		if(is_room_previous_time("data/".$room_arraydata[0],7200)) {
 		switch($room_arraydata[2]){
 		case "waiting":
 			array_push($waiting_room,$room_data);
@@ -25,8 +25,9 @@ if ($room_exist){
 		case "processing":
 			array_push($prosessing_room,$room_data);
 			break;
+			}
 		}
-	}
+		}
 
 }
 
@@ -105,6 +106,9 @@ $(function(){
 	    <option value="8">8</option>
 	    <option value="9">9</option>
 	    <option value="10">10</option>
+	</select>
+	<p>
+		<input name="anonymous" type="checkbox" value="check">この部屋は、ゲーム中は「入室時の名前」を隠してプレイが始まる。
 	</p>
 	<input id="makeroom" type="submit" value="作成">
 	</form>
