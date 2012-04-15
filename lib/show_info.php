@@ -121,9 +121,14 @@ class ShowInfo extends Singleton {
 	}
 	echo $show_name_string;
 	echo "</span><br /> <textarea name='say'style='width:95%' rows='2' id='say' /></textarea>";
-
-	$color_list = array("black","maroon","purple","green","olive","navy","teal","gray","fuchsia","orangered");
-	foreach ($color_list as $color_item){
+	if ($this->RoomInfo->is_room_anonymous() !== "false"
+		and $this->RoomInfo->get_states() === "waiting") {
+			$color_list = array("black");
+			echo "<p class='caption'>ゲームが開始したら、色が選べるようになります。</p>";
+		} else {
+			$color_list = array("black","maroon","purple","green","olive","navy","teal","gray","fuchsia","orangered");
+		}
+		foreach ($color_list as $color_item){
 		echo "<input type='radio' name='color' value='$color_item'";
 		if($this->Session["color" . $this->RoomInfo->cgi_file ] === $color_item){
 			echo " checked";

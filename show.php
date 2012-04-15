@@ -241,27 +241,28 @@ if($roominfo->get_scene() === "mission"
 	&& $roominfo->count_mission_user() >= $roominfo->count_team_member() ){
 		//失敗かどうかを判定する    
 		$count_falsed = $roominfo->count_failure();    
-		
+		$team_anonymous_or_not = $roominfo->parse_team_to_anonymous();
+		$leader_anonymous_or_not = $roominfo->is_room_anonymous() === "false" ? $roominfo->get_now_leader() : $roominfo->get_username_to_anonymous($roominfo->get_now_leader());
 		if ($count_falsed === 0){
 			$save_data = "このミッションは【成功】しました。";
 			$roominfo->add_victory_point("registance");
-			$roominfo->set_victory_history($roominfo->get_team_member(),$roominfo->get_now_leader(),"registance",0);
+			$roominfo->set_victory_history($team_anonymous_or_not,$leader_anonymous_or_not,"registance",0);
 		} else {
 			if ($roominfo->get_mission_no() === 4 
 				&& count($roominfo->get_users_array()) > 6) {
 				if ($count_falsed === 1) {
 					$save_data = "このミッションは、" . $count_falsed . "人の「失敗」への投票がありましたが、無事成功しました。";
 				    $roominfo->add_victory_point("registance");	
-					$roominfo->set_victory_history($roominfo->get_team_member(),$roominfo->get_now_leader(),"registance",1);
+					$roominfo->set_victory_history($team_anonymous_or_not,$leader_anonymous_or_not,"registance",1);
 				} else {
 					$save_data = "このミッションは、" . $count_falsed . "人の「失敗」への投票で、【失敗】しました。";
 					$roominfo->add_victory_point("spy");
-					$roominfo->set_victory_history($roominfo->get_team_member(),$roominfo->get_now_leader(),"spy",$count_falsed);
+					$roominfo->set_victory_history($team_anonymous_or_not,$leader_anonymous_or_not,"spy",$count_falsed);
 				}
 				}else{
 			$save_data = "このミッションは、" . $count_falsed . "人の「失敗」への投票で、【失敗】しました。";
 			$roominfo->add_victory_point("spy");
-			$roominfo->set_victory_history($roominfo->get_team_member(),$roominfo->get_now_leader(),"spy",$count_falsed);
+			$roominfo->set_victory_history($team_anonymous_or_not,$leader_anonymous_or_not,"spy",$count_falsed);
 			}
 		}
 		$roominfo->add_log("system","warning","red",$save_data);
@@ -527,6 +528,11 @@ setInterval(function(){
     <div id="header">
     <h1> <?php echo $roominfo->get_name() . " - レジスタンス・チャット"; ?> </h1>
 	<h2> <?php echo $roominfo->get_room_states_message(); ?> </h2>
+<?php
+	if ($roominfo->is_room_anonymous() !== "false"){
+		echo "<h2>この部屋は、進行時に入室時のハンドルが隠されます。</h2>";
+	}
+?>
 	<p class="message" style="display:none;" id="warning_reload">ステータスが更新されました。リロードしてみてください。</p>
 <?php
 
@@ -659,11 +665,14 @@ case "processing":
 case "end":
 	foreach($roominfo->get_users() as $show_user){
 		echo "<li>";
+		
 		if ($roominfo->is_spy($show_user->username)){
 			echo "【スパイ】";
 		}
+
 		if ($roominfo->is_room_anonymous() !== "false") {
-			echo $show_user->anonymous_name . "(" . $show_user->username . ")";
+			echo $show_user->anonymous_name;
+			echo "(" . $show_user->username . ")";
 		} else {
 			echo $show_user->username;
 		}

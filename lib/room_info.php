@@ -26,7 +26,8 @@ class RoomInfo extends Singleton {
 		$this->parse_user();
 		$this->parse_vote_user();
 		$this->parse_mission_user();
-		if ($this->get_states() === "processing"
+		if (($this->get_states() === "processing"
+			or $this->get_states() === "end") 
 			and $this->is_room_anonymous() !== "false") {
 			$this->set_user_anonymous_name();
 		}
@@ -491,6 +492,18 @@ class RoomInfo extends Singleton {
 			$this->room_data[9] = implode(",",$target_member) . "\n"; 
 	}
 
+	public function parse_team_to_anonymous() {
+		if ($this->is_room_anonymous() !== "false"){
+			$anonymous_to_user_array = Array();
+			foreach($this->get_team_member() as $member_item){
+				array_push($anonymous_to_user_array,$this->get_username_to_anonymous($member_item));
+			}
+			return $anonymous_to_user_array;
+		} else {
+			return $this->get_team_member();
+		}
+	}
+
 	public function parse_team_to_username() {
 		if ($this->is_room_anonymous() !== "false"){
 			$anonymous_to_user_array = Array();
@@ -586,7 +599,9 @@ class RoomInfo extends Singleton {
 		} else {
 			$anonymous_name_set = Array(
 				"ルパン","ボンド","オーウェル","ヘンリー","クラーク","ハインライン","アシモフ","イーガン","ウルフ","ギブスン"
-				,"ザミャーチン");
+				,"ザミャーチン","デニーロ","ウィルソン","ハント","クルーズ","ロジャー","ヒッチコック","コナン","ホームズ"
+				,"ゴルゴ","カリオストロ","スマイリー","ドミニク","ヘルム","ドラモント","ガーラント","ヤン","ラウ","ボーン","ミュアー"
+				,"アーチャー","トロイ","アームストロング");
 			shuffle($anonymous_name_set);
 			for ($i = 0;$i < $max;$i++){
 				$this->room_user[$i]->anonymous_name = array_shift($anonymous_name_set);
