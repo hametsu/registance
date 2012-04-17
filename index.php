@@ -108,8 +108,10 @@ $(function(){
 	    <option value="10">10</option>
 	</select>
 	<p>
+		<h2>選択ルール</h2>
 		<input name="anonymous" type="checkbox" value="check">この部屋は、ゲーム中は「入室時の名前」を隠してプレイが始まる。
 		<br /><input name="blind_spy" type="checkbox" value="check">この部屋は、スパイは仲間がわからないまま進行する。
+		<br /><input name="double_spy" type="checkbox" value="check">7人以上なら、二重スパイが登場する(Mission5で、チームに選ばれたら、二重スパイの勝利)
 	</p>
 	<input id="makeroom" type="submit" value="作成">
 	</form>
