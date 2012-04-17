@@ -41,11 +41,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET'){
 	fwrite($file_access,"\n");//[13] ミッションに賛成か否か
 	fwrite($file_access,"\n");//[14] ミッションの失敗/成功のカウント
 	fwrite($file_access,"\n");//[15] ミッションでどっちが勝利したか 
+	$write_room_string = "";
 	if($_POST["anonymous"] === "check") {
-		fwrite($file_access,"true\n");
+		$write_room_string = "true";
 	} else {
-		fwrite($file_access,"false\n");
+		$write_room_string = "false";
 	}
+
+	if($_POST["blind_spy"] === "check") {
+		$write_room_string .= ",true\n";
+	} else {
+		$write_room_string .= ",false\n";
+	}
+	fwrite($file_access,$write_room_string);
+
 	flock($file_access, LOCK_UN);
 	fclose($file_access);
 }

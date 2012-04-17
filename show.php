@@ -532,6 +532,10 @@ setInterval(function(){
 	if ($roominfo->is_room_anonymous() !== "false"){
 		echo "<h2>この部屋は、進行時に入室時のハンドルが隠されます。</h2>";
 	}
+
+	if ($roominfo->is_blind_spy()) {
+		echo "<h2>この部屋は、スパイ同士はお互いの仲間がわかりません。</h2>";
+	}
 ?>
 	<p class="message" style="display:none;" id="warning_reload">ステータスが更新されました。リロードしてみてください。</p>
 <?php
@@ -610,7 +614,8 @@ case "processing":
 				echo "<span class='leader'>【リーダー】</span>";
 			}
 
-			if($is_your_spy && $roominfo->is_spy($show_user->username)){
+			if($is_your_spy && $roominfo->is_spy($show_user->username)
+			   && !$roominfo->is_blind_spy()){
 				echo "<span class='spy'>【スパイ】</span>";
 			}
 
@@ -636,7 +641,8 @@ case "processing":
 				echo "<span class='leader'>【リーダー】</span>";
 			}
 
-			if($is_your_spy && $roominfo->is_spy($show_user->username)){
+			if($is_your_spy && $roominfo->is_spy($show_user->username)
+			   && !$roominfo->is_blind_spy()){
 				echo "<span class='spy'>【スパイ】</span>";
 			}
 

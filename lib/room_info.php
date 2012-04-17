@@ -582,6 +582,11 @@ class RoomInfo extends Singleton {
 		return $is_room_anonymous[0];
 	}
 
+	public function is_blind_spy() {
+		$is_blind_spy = explode(",",trim($this->room_data[16]));
+		return $is_blind_spy[1] === "true";
+	}
+
 	public function get_username_to_anonymous($target_username) {
 		foreach($this->room_user as $user_item) {
 			if ($user_item->username === $target_username) {
@@ -614,9 +619,12 @@ class RoomInfo extends Singleton {
 	public function anonymous_name_to_data() {
 
 	if ($this->is_room_anonymous() === "false") {
-		$this->room_data[16] = "false\n";
+		$this->room_data[16] = "false";
+		$this->room_data[16] .= $this->is_blind_spy() ? ",true" : ",false";
+		$this->room_data[16] .= "\n";
 	} else {
 		$write_string = "true";
+		$write_string .= $this->is_blind_spy() ? ",true" : ",false";
 		foreach ($this->room_user as $user_item){
 			$write_string .= "," . $user_item->username . "," . $user_item->anonymous_name;
 		}
@@ -628,8 +636,7 @@ class RoomInfo extends Singleton {
 	public function set_user_anonymous_name() {
 		$parse_anonymous_name = explode(",",trim($this->room_data[16]));
 		$max_anonymous_name = count($parse_anonymous_name);
-
-		for ($i = 1;$i < $max_anonymous_name;$i = $i + 2){
+		for ($i = 2;$i < $max_anonymous_name;$i = $i + 2){
 			$this->set_user_to_anonymous_name($parse_anonymous_name[$i],$parse_anonymous_name[$i + 1]);
 		}
 

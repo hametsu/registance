@@ -109,6 +109,7 @@ $(function(){
 	</select>
 	<p>
 		<input name="anonymous" type="checkbox" value="check">この部屋は、ゲーム中は「入室時の名前」を隠してプレイが始まる。
+		<br /><input name="blind_spy" type="checkbox" value="check">この部屋は、スパイ同士がわからないまま進行する。
 	</p>
 	<input id="makeroom" type="submit" value="作成">
 	</form>
