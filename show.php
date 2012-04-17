@@ -111,7 +111,11 @@ if (($roominfo->get_states() === "waiting")
 	rewrite_room_dat("processing",$room_file);
 	$roominfo->set_room_people(count($roominfo->get_users()));
 	$roominfo->set_waiting_to_processing();
-	$roominfo->set_scene("team");
+	if ($roominfo->is_apply_expands()){
+		$roominfo->set_scene("expands_card");
+	} else {	
+		$roominfo->set_scene("team");
+	}
 	$leader_anonymous_or_not = $roominfo->is_room_anonymous() === "false" ? $roominfo->get_now_leader() : $roominfo->get_username_to_anonymous($roominfo->get_now_leader());
 	$roominfo->add_log("system","warning","red","【" . $leader_anonymous_or_not. "】が、リーダーとして選出されました。");
 	$roominfo->write_room_data();
@@ -270,7 +274,11 @@ if($roominfo->get_scene() === "mission"
 		//履歴をセットする
 
 		//Missionを初期化する
-		$roominfo->set_scene("team");
+		if ($roominfo->is_apply_expands()){
+			$roominfo->set_scene("expands_card");
+		} else {
+			$roominfo->set_scene("team");
+		}
 		$leader_anonymous_or_not = $roominfo->is_room_anonymous() === "false" ? $roominfo->get_now_leader() : $roominfo->get_username_to_anonymous($roominfo->get_now_leader());
 		$roominfo->add_log("system","warning","red","【" . $leader_anonymous_or_not . "】が、リーダーとして選出されました。");
 		
@@ -547,6 +555,11 @@ $showinfo->show_vote_start_button();
 //
 
 $showinfo->show_vote_and_mission();
+
+//
+//　カード配布時のメッセージ
+//
+$showinfo->show_give_card();
 
 ?>
 

@@ -10,7 +10,7 @@ class RoomInfoTest extends PHPUnit_Framework_TestCase
 		$roominfo->loadfile($file_name,TRUE);
 
 		$this->assertSame($roominfo->cgi_file,$file_name);
-		$this->assertSame(count($roominfo->get_raw_roomdata()),18);
+		$this->assertSame(count($roominfo->get_raw_roomdata()),22);
 
 		return $roominfo;
 
@@ -215,11 +215,11 @@ class RoomInfoTest extends PHPUnit_Framework_TestCase
 		$time_string = (string) time();
 		$roominfo->add_log("system","warning","red","ほげほげ");
 		$raw_data = $roominfo->get_raw_roomdata();
-		$this->assertSame($raw_data[17],"system,warning,red,ほげほげ,$time_string\n");
+		$this->assertSame($raw_data[22],"system,warning,red,ほげほげ,$time_string\n");
 		$roominfo->add_log("ほげ","say","black","ふがふが");
 		$raw_data = $roominfo->get_raw_roomdata();
-		$this->assertSame($raw_data[17],"ほげ,say,black,ふがふが,$time_string\n");
-		$this->assertSame($raw_data[18],"system,warning,red,ほげほげ,$time_string\n");
+		$this->assertSame($raw_data[22],"ほげ,say,black,ふがふが,$time_string\n");
+		$this->assertSame($raw_data[23],"system,warning,red,ほげほげ,$time_string\n");
 	}	
 
 	/**
@@ -584,4 +584,5 @@ class RoomInfoTest extends PHPUnit_Framework_TestCase
 		$roominfo->set_scene("team");
 		$this->assertSame($roominfo->get_failure_team_no(),2);
 	}
+
 }

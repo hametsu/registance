@@ -43,9 +43,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET'){
 	fwrite($file_access,"\n");//[15] ミッションでどっちが勝利したか 
 	if($_POST["anonymous"] === "check") {
 		fwrite($file_access,"true\n");
-	} else {
+	} else { 
 		fwrite($file_access,"false\n");
-	}
+	} //[16]
+
+	if($_POST["expands"] === "check") {
+		fwrite($file_access,"is_expands\n");
+	} else {
+		fwrite($file_access,"\n");
+	} //[17]
+
+	fwrite($file_access,"\n"); //[18]
+	fwrite($file_access,"\n"); //[19]
+	fwrite($file_access,"\n"); //[20]
+	fwrite($file_access,"\n"); //[21]
 	flock($file_access, LOCK_UN);
 	fclose($file_access);
 }

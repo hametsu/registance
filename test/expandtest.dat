@@ -15,8 +15,8 @@ User1,User2
 registance,spy
 
 true,User1,ボンド,User2,ビックブラザー,User3,もこみち
-is_expands
+expand
 
-Hoge,Fuga
-name,User1,card,Hoge,name,User2,card,Hoge,card,Fuga,effect,Mokkori,name,User3
+
+name,User1,name,User2,card,1,card,2,name,User3
 

@@ -406,18 +406,27 @@ class RoomInfo extends Singleton {
 		return trim($this->room_data[5]);
 	}
 	
-	public function set_scene($target_scene){
-	
+	public function set_scene($target_scene){	
 		switch($target_scene){
+		case "expands_card":
+			$this->set_expands();
+		//以下、チームからミッションがやってきたときの場合と同様
 		case "team":
-			$this->set_now_leader();
 			if ($this->get_scene() === "mission"){
 				$this->plus_mission();
 				$this->set_failure_team_no(0);
 			}
+			
+			if ($this->get_scene() !== "expands_card") {
+				$this->plus_failure_team_no();
+				$this->set_now_leader();
+			}
+			
 			$this->reset_team_member();
 			$this->reset_vote_user();
-			$this->plus_failure_team_no();
+			if ($this->is_apply_expands()) {
+				$this->reset_given_card();
+			}
 			break;
 		case "vote":
 			$this->reset_mission_user();
@@ -425,6 +434,7 @@ class RoomInfo extends Singleton {
 		case "mission":
 			break;
 		}
+		$this->reset_user_conform();
 		$this->room_data[5] = $target_scene . "\n";
 	}
 
@@ -568,7 +578,248 @@ class RoomInfo extends Singleton {
 		$this->room_data[14] = $this->room_data[14] === "\n" ? $setpoint . "\n" : trim($this->room_data[14]) . "," . $setpoint . "\n";
 	}
 
-	const START_LOG_LINE = 17;
+	public function is_apply_expands() {
+		return trim($this->room_data[17]) === "is_expands";
+	}
+
+	public function set_expands($debug = false) {
+		$draw_cards = Array();
+		$expand_cards = $this->get_expand_cards();
+		$user_member = count($this->get_users());
+
+		if ($user_member <= 6 and !$debug) {
+			$draw_number = 1;
+		} elseif ($user_member >= 7
+			and $user_member <= 8) {
+			$draw_number = 2;
+		} elseif ($user_member >= 9 or $debug) {
+			$draw_number = 3;
+		}
+
+		for ($i = 0;$i < $draw_number; $i++){
+			array_push($draw_cards,array_shift($expand_cards));
+		}
+
+		$this->room_data[18] = implode(",",$expand_cards) . "\n";
+		$this->room_data[19] = implode(",",$draw_cards) . "\n";
+
+	}
+
+	public function parse_expands_user_to_data() {
+		$result_string = "";
+		foreach($this->room_user as $user_item){
+			if($result_string === ""){
+				$result_string = "name,". $user_item->username;
+			} else {
+				$result_string .= ",name," . $user_item->username;
+			}
+
+			if ($user_item->have_expand_card !== Null) {
+				foreach($user_item->have_expand_card as $have_card){
+					$result_string .= ",card,$have_card";
+				}
+			}
+
+			if($user_item->effect_expand_card !== Null) {
+				foreach($user_item->effect_expand_card as $effect){
+					$result_string .= ",effect,$effect";
+				}
+			}
+
+			if ($user_item->given_card){
+				$result_string .= ",given,true";
+			}
+
+			if ($user_item->conform_use_card) {
+				$result_string .= ",conform,true";
+			}
+		}
+		$this->room_data[20] = $result_string . "\n";
+	}
+
+	public function reset_given_card() {
+
+		$max_user = count($this->room_user);
+
+		for($i = 0;$i < $max_user;$i++) {
+			$this->room_user[$i]->given_card = false;
+		}
+
+		$this->parse_expands_user_to_data();
+
+	}
+
+	public function get_expand_leader() {
+		return $this->room_data[19] === "\n" ? Array() : explode(",",trim($this->room_data[19]));
+	}
+
+	public function get_expand_cards() {
+		return $this->room_data[18] === "\n" ? Array() : explode(",",trim($this->room_data[18]));
+	}
+
+	public function leader_have_expand_cards() {
+		return count($this->get_expand_leader()) !== 0;
+	}
+
+	public function reset_expands($debug = false){
+		$this->room_data[18] = 'Power_leader,Power_leader,Vote_concenser,Observer,Observer,Veto_leader,Card_getter';
+		if (count($this->get_users()) >= 7
+			or $debug) {
+			$this->room_data[18] .= 'Wiretapper,Wiretapper,Veto_leader,Veto_leader,Open_Inform,Vote_concenser,Open_Mission,Open_leader';
+			}
+		$this->room_data[20] = "";
+		foreach ($this->room_user as $user_item) {
+			$this->room_data[20] .= $this->room_data[20] === "" ? "name," . $user_item->username : ",name," . $user_item->username;
+		}
+			$this->room_data[20] .= "\n";
+	}	
+
+	public function parse_expands_data_to_user() {
+		$parse_target = "";
+		$data_array = explode(",",trim($this->room_data[20]));
+		$max = count($data_array);
+		for ($i = 0;$i < $max;$i =  $i + 2){
+			switch($data_array[$i]){
+				case "name":
+				if ($parse_target !== "") {
+					$this->set_expands_to_user($parse_target,$parse_have_card,$parse_effect,$given_flag,$conform_flag);
+				}
+					$given_flag = false;
+					$conform_flag = false;
+					$parse_target = $data_array[$i + 1];
+					$parse_have_card = Array();
+					$parse_effect = Array();
+					break;
+				case "card":
+					array_push($parse_have_card,$data_array[$i + 1]);
+					break;
+				case "effect":
+					array_push($parse_effect,$data_array[$i + 1]);
+					break;
+				case "given":
+					if ($data_array[$i + 1] === "true"){
+						$given_flag = true;
+					}
+				case "conform":
+					if ($data_array[$i + 1] === "true"){
+						$conform_flag = true;
+					}
+			}
+		}
+		$this->set_expands_to_user($parse_target,$parse_have_card,$parse_effect,$given_flag,$conform_flag);
+	}
+
+	public function set_user_conform($target_user) {
+		$max_user = count($this->room_user);
+		for ($i = 0;$i < $max_user;$i++) {
+			if ($this->room_user[$i]->username === $target_user) {
+				$this->room_user[$i]->conform_use_card = true;
+				break;
+			}
+		}
+	}
+
+	public function reset_user_conform() {
+		$max_user = count($this->room_user);
+		for ($i = 0;$i < $max_user;$i++) {
+			$this->room_user[$i]->conform_use_card = false;
+		}
+	}
+
+	public function set_expands_to_user($parse_target,$parse_have_card,$parse_effect,$given_flag,$conform_flag) {
+		$user_member = count($this->get_users());
+		for($j = 0;$j < $user_member;$j++){
+			if ($this->room_user[$j]->username === $parse_target){
+				$this->room_user[$j]->have_expand_card = $parse_have_card;
+				$this->room_user[$j]->effect_expand_card = $parse_effect;
+				$this->room_user[$j]->given_flag = $given_flag;
+				$this->room_user[$j]->conform_use_card = $conform_flag;
+				break;
+			}
+		}
+	}
+
+	public function use_expands_user($username,$card) {
+		$is_effect = false;
+		$max_user   = count($this->room_user);
+		for ($i = 0;$i < $max_user;$i++){
+			if ($this->room_user[$i]->username === $username) {
+				$result_card = Array();
+				$target_card = $this->room_user[$i]->have_expand_card;
+				foreach($target_card as $card_item) {
+					if ($card_item !== $card) {
+						array_push($result_card,$card_item);
+					} else {
+						$is_effect = true;
+					}
+				}
+			break;
+			}
+		}
+		$this->room_user[$i]->have_expand_card = $result_card;
+		$this->parse_expands_user_to_data();
+		return $is_effect;
+	}
+
+	public function give_expands_user($username,$card){
+		$exist_user = false;
+		$max_user   = count($this->room_user);
+		for ($i = 0;$i < $max_user;$i++) {
+			if ($this->room_user[$i]->username === $username
+			and $this->room_user[$i]->given_card === false) {
+				$exist_user = true;
+				break;
+			}
+		}
+
+		$exist_card = false;
+		if ($exist_user) {
+			$result_card = Array();
+			foreach($this->get_expand_leader() as $card_item) {
+				if ($card_item !== $card){
+					array_push($result_card,$card_item);
+				} else {
+				$exist_card = true;
+				}
+			}
+		}
+
+		if ($exist_card) {
+			array_push($this->room_user[$i]->have_expand_card,$card);
+			$this->room_data[19] = implode(",",$result_card);
+			$this->room_user[$i]->given_card = true;
+		}
+		
+		$log_leader = $this->is_room_anonymous() === "false" ? $this->get_now_leader() : $this->get_username_to_anonymous($this->get_now_leader());
+		$log_name = $this->is_room_anonymous() === "false" ? $username : $this->get_username_to_anonymous($username);
+		$kind_card = $this->get_cards_text($card);
+		$this->add_log("system","message","green","【" . $log_leader . " 】は、【" . $log_name . "】に対して『" . $kind_card . "』を渡しました。");
+	}
+
+	public function get_cards_text($kind_card) {
+		switch($kind_card){
+		case "Power_leader":
+			return "強制的にリーダーになる";
+		case "Vote_concenser":
+			return "皆に先駆けて投票を公開する";
+		case "Observer":
+			return "ミッションカードを見る";
+		case "Veto_leader":
+			return "強制的にリーダーを解任する";
+		case "Wiretapper":
+			return "隣の人間の役割カードを見る";
+		case "Open_Inform":
+			return "役割カードを他の人に見せる";
+		case "Open_Mission":
+			return "ミッションカードをオープンにさせる";
+		case "Open_leader":
+			return "誰かに役割カードを見せる";
+		case "Card_getter":
+			return "誰かのカードを奪い取る";
+		}
+	}
+
+	const START_LOG_LINE = 22;
 	public function add_log($username,$comd,$color,$message) {
 		if(!isset($this->room_data[self::START_LOG_LINE])) {
 			$this->room_data[self::START_LOG_LINE] = "$username,$comd,$color,$message," . (string) time() . "\n";
@@ -663,6 +914,11 @@ class RoomInfo extends Singleton {
 		if ($this->is_room_anonymous() !== "false") {
 			$this->new_user_anonymous_name();
 		}
+
+		if ($this->is_apply_expands()) {
+			$this->reset_expands();
+		}
+
 		$this->set_mission_no(1);
 		$this->shuffle_users();
 		$this->set_states("processing");
@@ -708,6 +964,9 @@ class RoomInfo extends Singleton {
 		 $return_string = "";
 		 $return_string .= "Mission" . $this->get_mission_no() . " - ";
 		switch ($this->get_scene()){
+			case "expands_card":
+				$return_string .= "カードを配布しています。";
+				break;
 			case "team":
 				$return_string .= "チームを編成します。";
 				break;

@@ -59,6 +59,27 @@ class ShowInfo extends Singleton {
 		return $this->RoomInfo->is_leader($this->Session[$this->get_session_name()]);
 	}
 
+	public function show_give_card() {
+		if ($this->RoomInfo->get_scene() === "expands_card") {
+			if ($this->is_leader_who_browse_now()) {
+				echo "<ul>";
+				foreach($this->RoomInfo->get_expand_leader() as $card_item){
+					echo "<li class='card'><span class='card_name'>『";
+					echo $this->RoomInfo->get_cards_text($card_item);
+					echo "</span>』を";
+					echo "<ul>";
+					echo "</ul>";
+					echo "へ<br />";
+					echo "<input type='submit' value='与える' />";
+					echo "</li>";
+				}
+				echo "</ul>";
+			} else {
+				echo "<p class='message'>現在、リーダーがカードを配布しています。</p>";
+			}
+		}
+	}
+
 	public function show_vote_start_button() {
 	if($this->RoomInfo->get_states() === "waiting"){
 	if ($this->is_set_name() and $this->can_playing_member()){

@@ -109,6 +109,8 @@ $(function(){
 	</select>
 	<p>
 		<input name="anonymous" type="checkbox" value="check">この部屋は、ゲーム中は「入室時の名前」を隠してプレイが始まる。
+		<br />
+		<input name="expands" type="checkbox" value="check">拡張ルールを使用する。
 	</p>
 	<input id="makeroom" type="submit" value="作成">
 	</form>
