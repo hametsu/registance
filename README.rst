@@ -26,4 +26,4 @@ History
 License
 =======
 
-This Software is MIT License.
+MIT License.
