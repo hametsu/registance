@@ -322,10 +322,12 @@ if ($roominfo->get_states() === "processing"){
 	}
 		$roominfo->add_log("system","warning","red",$save_data);
 		$show_spy_list = $roominfo->is_room_anonymous() !== "false" ? $roominfo->get_anonymous_spylist() : $roominfo->get_spylist();
+		if ($roominfo->is_room_double_spy() && count($roominfo->get_users()) >= 7) {
+			$double_spy_name = array_pop($show_spy_list);
+		}
 		$roominfo->add_log("system","warning","red","今回は、【" . implode("、",$show_spy_list) . "】の方々がスパイでした。おつかれさま！");
 		if ($roominfo->is_room_double_spy() && count($roominfo->get_users()) >= 7) {
-			$max_spy_list = count($show_spy_list);
-			$roominfo->add_log("system","warning","red","そして、二重スパイは【" . $show_spy_list[$max_spy_list - 1] . "】でした！");
+			$roominfo->add_log("system","warning","red","そして、二重スパイは【" . $double_spy_name . "】でした！");
 		}	
 	$roominfo->write_room_data($room_info,$room_data);
 }
@@ -553,8 +555,8 @@ setInterval(function(){
 	}
 
 	if ($roominfo->is_room_double_spy()) {
-		echo "<h3>7人以上で、「二重スパイ」が現れます。</h3>";
-		echo "<p class='caption'>「二重スパイ」は、スパイ同士からはスパイと表示されています。また、二重スパイはMission5の時点で、チームに選ばれた場合に勝利となります。</p>";
+		echo "<h3>7人以上で、「二重スパイ」が現れます。";
+		echo "「二重スパイ」は、スパイ同士からはスパイと表示されています。また、二重スパイは、Mission5の時点で、チームに選ばれ、かつそのチームが信任された場合に勝利となります。</h3>";
 	}
 ?>
 	<p class="message" style="display:none;" id="warning_reload">ステータスが更新されました。リロードしてみてください。</p>

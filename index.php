@@ -63,6 +63,7 @@ $(function(){
 	<h2>過去ログ</h2>
 		<p><a href="pastlog.php">過去に立てられた部屋</a></p>
 		<p>始めての方や、レジスタンスに興味を持った方は、ここから過去のログを読むと、だいたいの流れを掴むことができるかもしれません。</a>
+		<p>2012.04.18 05:00:00 :: 新しいデータ形式を採用したため、過去ログを一回リセットしました。
 	<h2>連絡</h2>
 	<p><a href="http://twitter.com/esehara/">似非原重雄</a></p>
 	<p><a href="http://twitter.com/resistancechat/">レジスタンスチャット告知用アカウント</a></p>
@@ -111,7 +112,7 @@ $(function(){
 		<h3>選択ルール</h3>
 		<input name="anonymous" type="checkbox" value="check">この部屋は、ゲーム中は「入室時の名前」を隠してプレイが始まる。
 		<br /><input name="blind_spy" type="checkbox" value="check">この部屋は、スパイは仲間がわからないまま進行する。
-		<br /><input name="double_spy" type="checkbox" value="check">7人以上なら、二重スパイが登場する(Mission5で、チームに選ばれたら、二重スパイの勝利)
+		<br /><input name="double_spy" type="checkbox" value="check">7人以上なら、二重スパイが登場する(Mission5で、チームに選ばれて承認されたら、二重スパイの勝利)
 		<br />※二重スパイルールは、覆面ルール（入室時の名前～）と一緒に使うと、バグってしまうかもしれません（未検証）
 	</p>
 	<input id="makeroom" type="submit" value="作成">

@@ -23,3 +23,7 @@ History
 
   - Push to GitHub
 
+License
+=======
+
+This Software is MIT License.
