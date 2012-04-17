@@ -530,11 +530,11 @@ setInterval(function(){
 	<h2> <?php echo $roominfo->get_room_states_message(); ?> </h2>
 <?php
 	if ($roominfo->is_room_anonymous() !== "false"){
-		echo "<h2>この部屋は、進行時に入室時のハンドルが隠されます。</h2>";
+		echo "<h3>この部屋は、進行時に入室時のハンドルが隠されます。</h3>";
 	}
 
 	if ($roominfo->is_blind_spy()) {
-		echo "<h2>この部屋は、スパイ同士はお互いの仲間がわかりません。</h2>";
+		echo "<h3>この部屋は、スパイ同士はお互いの仲間がわかりません。</h3>";
 	}
 ?>
 	<p class="message" style="display:none;" id="warning_reload">ステータスが更新されました。リロードしてみてください。</p>
