@@ -28,7 +28,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET'){
 	fwrite($file_access,$room_name . "\n");//[0] 部屋の名前 
 	fwrite($file_access,"waiting\n"); //[1] 部屋の状態    
 	fwrite($file_access,"\n");//[2] 参加者
-	fwrite($file_access,"\n");//[3] 参加者の役割(スパイのみ)
+	if ($_POST["double_spy"] === "check") {
+		fwrite($file_access,"true\n");//[3] 参加者の役割(スパイのみ)
+	} else {
+		fwrite($file_access,"false\n");
+	}
 	fwrite($file_access,$_POST['people']."\n");//[4] 参加者の人数
 	fwrite($file_access,"breafing\n");//[5] 部屋のシーン
 	fwrite($file_access,"0,0\n");//[6] ミッションの回数

@@ -266,9 +266,9 @@ if($roominfo->get_scene() === "mission"
 			}
 		}
 		$roominfo->add_log("system","warning","red",$save_data);
+		$pre_team = $roominfo->get_team_member();
 		
 		//履歴をセットする
-
 		//Missionを初期化する
 		$roominfo->set_scene("team");
 		$leader_anonymous_or_not = $roominfo->is_room_anonymous() === "false" ? $roominfo->get_now_leader() : $roominfo->get_username_to_anonymous($roominfo->get_now_leader());
@@ -295,10 +295,21 @@ $count_not_success = $result["spy"];
 if ($roominfo->get_states() === "processing"){
 	$failure_no = $roominfo->get_failure_team_no();
 	if ($count_success >= 3 || $count_not_success >= 3 || $failure_no > 5){
+		$in_double_spy = false;
+		if ($roominfo->is_room_double_spy()) {
+			foreach($pre_team as $team_check) {
+				if ($roominfo->is_double_spy($team_check)){
+					$in_double_spy = true;
+				}
+			}
+		}
 		rewrite_room_dat("end",$room_file);
 		$roominfo->set_states("end");
 		$roominfo->set_scene("end");
-	if ($count_success >= 3){
+	if ($in_double_spy && ($count_success + $count_not_success ) === 5) {
+		$roominfo->set_game_victory("double_spy");
+		$save_data = "お見事！スパイもレジスタンスも出し抜き、貴方自身の勝利を手に入れました！【二重スパイ】の勝利です。";
+	} elseif ($count_success >= 3){
 		$roominfo->set_game_victory("registance");
 		$save_data = "やりましたね！スパイの妨害を勝ち抜き、【レジスタンス側の勝利】です。";
 
@@ -311,7 +322,11 @@ if ($roominfo->get_states() === "processing"){
 	}
 		$roominfo->add_log("system","warning","red",$save_data);
 		$show_spy_list = $roominfo->is_room_anonymous() !== "false" ? $roominfo->get_anonymous_spylist() : $roominfo->get_spylist();
-	$roominfo->add_log("system","warning","red","今回は、【" . implode("、",$show_spy_list) . "】の方々がスパイでした。おつかれさま！");
+		$roominfo->add_log("system","warning","red","今回は、【" . implode("、",$show_spy_list) . "】の方々がスパイでした。おつかれさま！");
+		if ($roominfo->is_room_double_spy() && count($roominfo->get_users()) >= 7) {
+			$max_spy_list = count($show_spy_list);
+			$roominfo->add_log("system","warning","red","そして、二重スパイは【" . $show_spy_list[$max_spy_list - 1] . "】でした！");
+		}	
 	$roominfo->write_room_data($room_info,$room_data);
 }
 }
@@ -536,6 +551,11 @@ setInterval(function(){
 	if ($roominfo->is_blind_spy()) {
 		echo "<h3>この部屋は、スパイ同士はお互いの仲間がわかりません。</h3>";
 	}
+
+	if ($roominfo->is_room_double_spy()) {
+		echo "<h3>7人以上で、「二重スパイ」が現れます。</h3>";
+		echo "<p class='caption'>「二重スパイ」は、スパイ同士からはスパイと表示されています。また、二重スパイはMission5の時点で、チームに選ばれた場合に勝利となります。</p>";
+	}
 ?>
 	<p class="message" style="display:none;" id="warning_reload">ステータスが更新されました。リロードしてみてください。</p>
 <?php
@@ -671,8 +691,11 @@ case "processing":
 case "end":
 	foreach($roominfo->get_users() as $show_user){
 		echo "<li>";
-		
-		if ($roominfo->is_spy($show_user->username)){
+
+		if ($roominfo->is_double_spy($show_user->username)
+		    && $roominfo->is_room_double_spy() ){
+			echo "【二重スパイ】";
+		} elseif ($roominfo->is_spy($show_user->username)){
 			echo "【スパイ】";
 		}
 
@@ -694,7 +717,10 @@ if ($roominfo->get_states() === "processing"
 	&& isset($_SESSION["name" . $roominfo->get_filename()])){
 		echo "<div class='wrap_float'>";
 		echo "<ul><li><span class='system_info'>貴方の陣営</span></li>";
-		if ($roominfo->is_spy($_SESSION["name" . $roominfo->get_filename()])){
+
+		if ($roominfo->is_double_spy($_SESSION["name" . $roominfo->get_filename()])) {
+		echo "<li class='your_party'><span class='spy'>二重スパイ</span></li>";
+		} elseif ($roominfo->is_spy($_SESSION["name" . $roominfo->get_filename()])){
 		echo "<li class='your_party'><span class='spy'>スパイ</span></li>";
 		} else {
 		echo "<li class='your_party'><span class='name'>レジスタンス</span></li>";

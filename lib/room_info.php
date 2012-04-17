@@ -271,7 +271,14 @@ class RoomInfo extends Singleton {
 	//get proparty method
 
 	public function get_spylist() {
-		return $this->room_data[3] === "\n" ? array() : explode(",",trim($this->room_data[3]));
+		$return_value = explode(",",trim($this->room_data[3]));
+		array_shift($return_value);
+		return $return_value[0] === "" ? Array() : $return_value;
+	}
+
+	public function is_room_double_spy() {
+		$return_value = explode(",",trim($this->room_data[3]));
+		return $return_value[0] === "true";
 	}
 
 	public function get_anonymous_spylist() {
@@ -290,6 +297,13 @@ class RoomInfo extends Singleton {
 		}
 		return FALSE;
 	}
+
+	public function is_double_spy($target_name) {
+		$spy_list = $this->get_spylist();
+		$target_double_spy = count($spy_list);
+		return ($spy_list[$target_double_spy - 1] === $target_name && count($this->room_user) >= 7);
+	}
+
 	public function count_spy() {
 		$SPY_NUMBER = array (
 			3 => 2,
@@ -337,7 +351,8 @@ class RoomInfo extends Singleton {
 			}
 			array_push($set_user,$push_user);
 		}
-		$this->room_data[3] = implode(",",$set_user)."\n";
+		$is_double_spylist = $this->is_room_double_spy() ? "true," : "false,";
+		$this->room_data[3] = $is_double_spylist . implode(",",$set_user)."\n";
 	}
 
 	public function get_mission_victory() {
