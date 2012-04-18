@@ -20,7 +20,7 @@ $room_file = $_GET['file'];
 $room_file = str_replace("/","",$room_file);
 $is_filter = $_GET['filter'] === "on";
 /*
-$room_file = "1334431773.dat";
+$room_file = "1334743693.dat";
 $_POST = array("name" => "opera",
 			   "pass" => "opera");
 $_SESSION = array("name" . "data/" . $room_file => "chrome");

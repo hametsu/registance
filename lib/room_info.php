@@ -226,14 +226,17 @@ class RoomInfo extends Singleton {
 		
 		for($i = 0;$i < $max;$i++){
 			if ($name === $this->room_user[$i]->username){
+				
+				if ($this->is_room_anonymous() !== "false") {
+					$name = $this->room_user[$i]->anonymous_name;
+				}
+
 				if ($this->room_user[$i]->vote === NULL){
 					$this->add_log("system","message","green", $name . "さんは投票を行いました。");
 				} else {
-					if ($this->is_room_anonymous() !== "false") {
-						$name = $this->room_user[$i]->anonymous_name;
-					}
 					$this->add_log("system","message","green", $name . "さんは投票を行いました。");
 				}
+
 				$this->room_user[$i]->vote = $vote;
 			}
 		}

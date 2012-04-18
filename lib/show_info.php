@@ -91,8 +91,7 @@ class ShowInfo extends Singleton {
 			<input type='hidden' name='comd' value='login' />
 			<input type='submit' value='参加する' />
 			</form>
-			<p style='font-size:75%;text-align:center;'>簡易パスワードは再ログインの為だけに使います。</p>
-			<p style='font-size:75%;text-align:center;'>重要なパスワードを入力しないでください。</p>
+			<p class='caption'>簡易パスワードは再ログインの為だけに使います。重要なパスワードを入力しないでください。</p>
 			";
 	if($this->RoomInfo->get_states() === "processing"){
 
