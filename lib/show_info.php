@@ -86,8 +86,11 @@ class ShowInfo extends Singleton {
 			簡易パスワード:<input type='textarea' name='pass' />
 			<select name='want_spy'>
 				<option value='not'>どちらでもいい</option>
-				<option value='want'>スパイを希望する</option>
-				</select>
+				<option value='resistance'>レジスタンスを希望する(初心者用)</option>
+				<option value='spy'>スパイを希望する</option>
+				<option value='double_spy'>二重スパイを希望する(上級者用)</option>
+			</select>
+			<p class='caption'>※初心者は、「レジスタンスを希望する」がお勧めです。</p>
 			<input type='hidden' name='comd' value='login' />
 			<input type='submit' value='参加する' />
 			</form>

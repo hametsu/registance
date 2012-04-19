@@ -70,9 +70,9 @@ if($roominfo->get_states() === "waiting"
 		
 		$roominfo->add_user($_POST['name'],$_POST['pass']);	
 		$roominfo->add_log("system","message","red",$save_data);
-		if ($_POST['want_spy'] === "want") {
-			$roominfo->set_want_spy_user($_POST['name']);
-		}
+		//if ($_POST['want_spy'] !== "not") {
+			$roominfo->set_want_spy_user($_POST['name'],$_POST['want_spy']);
+		//}
 		$roominfo->write_room_data();
 		}
 	}
@@ -720,7 +720,8 @@ if ($roominfo->get_states() === "processing"
 		echo "<div class='wrap_float'>";
 		echo "<ul><li><span class='system_info'>貴方の陣営</span></li>";
 
-		if ($roominfo->is_double_spy($_SESSION["name" . $roominfo->get_filename()])) {
+		if ($roominfo->is_double_spy($_SESSION["name" . $roominfo->get_filename()])
+			&& $roominfo->is_room_double_spy()) {
 		echo "<li class='your_party'><span class='spy'>二重スパイ</span></li>";
 		} elseif ($roominfo->is_spy($_SESSION["name" . $roominfo->get_filename()])){
 		echo "<li class='your_party'><span class='spy'>スパイ</span></li>";

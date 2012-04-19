@@ -321,39 +321,51 @@ class RoomInfo extends Singleton {
 		return $SPY_NUMBER[count($this->get_users_array())];
 	}
 	
-	public function set_spylist() {
+	public function set_spylist($test = false) {
 		$set_user = array();
 		$count_spy = $this->count_spy();
 		
-		if (count($this->get_want_spy_user()) === 0){
-			//スパイ希望者がいない場合は、そのままユーザー配列を渡す
-			$get_user = $this->get_users_array();
-		} elseif ($count_spy > count($this->get_want_spy_user())) {
-			$not_spy_user = $this->get_users_array();
-			$get_user = $this->get_want_spy_user();
-			foreach($get_user as $push_user){
-				array_push($set_user,$push_user);
-				for ($i = 0;$i < count($not_spy_user);$i++){
-					if ($not_spy_user[$i] === $push_user) {
-						$not_spy_user[$i] = "";
-						break;
-					}
-				}
+		if ($count_spy > count($this->get_want_spy_user())) {
+			//スパイ希望者、どっちでもいいで多い場合は、
+			//スパイ希望者の配列に、どっちでもいいの配列を追加する
+			$set_user = $this->get_want_spy_user();
+
+			//どっちでもいいの配列でも足りない場合は、レジスタンス希望者からもってくる
+			if ((count($set_user) + count($this->get_wantnot_spy_user())) < $count_spy ){
+				$set_user  = array_merge($set_user,$this->get_wantnot_spy_user());
+				$get_user  = $this->get_want_resistance_user();
+			} else {
+				$get_user  = $this->get_wantnot_spy_user();
 			}
-			$get_user = $not_spy_user;
 		} else {
+			//スパイ希望者がスパイより多い場合は、get_userになる
 			$get_user = $this->get_want_spy_user();
 		}
 		//スパイの選択を始める
 		shuffle($get_user);
-		for ($i = 0;count($set_user) < $count_spy;$i++){
+		while (count($set_user) < $count_spy){
 			$push_user = array_shift($get_user);
-			if ($push_user === ""){
-				$i--;
-				continue;
-			}
 			array_push($set_user,$push_user);
 		}
+
+		//二重スパイの部屋ならば
+		if (($this->is_room_double_spy()
+			and count($this->room_user) >= 7)
+			or $test){
+				//誰かが二重スパイを希望しているか？
+				$somebody_spy = Array();
+				$somenot_spy = $set_user;
+				foreach ($set_user as $user_item) {
+					foreach($this->get_want_double_spy() as $want_item) {
+						if ($user_item === $want_item) {
+							array_push($somebody_spy,$user_item);
+						}
+					}
+				}
+				shuffle($somebody_spy);
+				$set_user = array_merge($somenot_spy,$somebody_spy);
+			}
+
 		$is_double_spylist = $this->is_room_double_spy() ? "true," : "false,";
 		$this->room_data[3] = $is_double_spylist . implode(",",$set_user)."\n";
 	}
@@ -782,23 +794,72 @@ class RoomInfo extends Singleton {
 	}
 
 	public function get_want_spy_user() {
-		return $this->room_data[13] === "\n" ? array() : explode(",",trim($this->room_data[13]));
+		$result_array = Array();
+		foreach($this->get_want_array() as $target_item){
+			if ($target_item[1] === "spy"
+			or  $target_item[1] === "double_spy") {
+				array_push($result_array,$target_item[0]);
+			}
+		}
+		return $result_array;
 	}
 
-	public function set_want_spy_user($username){
-		$this->room_data[13] = $this->room_data[13] === "\n" ? "$username\n" : trim($this->room_data[13]) . "," . "$username\n";
+	public function get_wantnot_spy_user() {
+		$result_array = Array();
+		foreach($this->get_want_array() as $target_item) {
+			if ($target_item[1] === "not") {
+				array_push($result_array,$target_item[0]);
+			}
+		}
+		return $result_array;
+	}
+
+	public function get_want_resistance_user() {
+		$result_array = Array();
+		foreach($this->get_want_array() as $target_item) {
+			if ($target_item[1] === "resistance") {
+				array_push($result_array,$target_item[0]);
+			}
+		}
+		return $result_array;
+	}
+
+	public function get_want_double_spy() {
+		$result_array = Array();
+		foreach ($this->get_want_array() as $target_item) {
+			if ($target_item[1] === "double_spy") {
+				array_push($result_array,$target_item[0]);
+			}
+		}
+		return $result_array;
+	}
+
+	public function get_want_array() {
+		$get_want_array = $this->room_data[13] === "\n" ? Array() : explode(",",trim($this->room_data[13]));
+		$max_want_array = count($get_want_array);
+		$result_array = Array();
+		for ($i = 0;$i < $max_want_array;$i = $i + 2) {
+			array_push($result_array,Array($get_want_array[$i],$get_want_array[$i + 1]));
+		}
+		return $result_array;
+	}
+
+	public function set_want_spy_user($username,$set_states){
+		$this->room_data[13] = $this->room_data[13] === "\n" ? "$username,$set_states\n" : trim($this->room_data[13]) . "," . "$username,$set_states\n";
 	}
 
 	public function reflesh_want_spy_user() {
 		$reflesh_want_spy_string = "";
 		$this->parse_user();
+		
 		foreach($this->get_users_array() as $user_item){
-			foreach($this->get_want_spy_user() as $check_user){
-				if ($check_user === $user_item){
-					$reflesh_want_spy_string = $reflesh_want_spy_string === "" ? $user_item : $reflesh_want_spy_string . "," . $user_item;
+			foreach($this->get_want_array() as $check_user){
+				if ($check_user[0] === $user_item){
+					$reflesh_want_spy_string = $reflesh_want_spy_string === "" ? $check_user[0] . "," . $check_user[1] : $reflesh_want_spy_string . "," . $check_user[0] . "," . $check_user[1];
 				}
 			}
 		}
+
 		$this->room_data[13] = $reflesh_want_spy_string . "\n";
 	}
 

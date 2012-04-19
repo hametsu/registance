@@ -263,12 +263,12 @@ class RoomInfoTest extends PHPUnit_Framework_TestCase
 	public function test_set_want_spy_user($roominfo){
 		$roominfo->debug_reset_want_spy_user();
 		$this->assertSame(count($roominfo->get_want_spy_user()),0);
-		$roominfo->set_want_spy_user("User3");
+		$roominfo->set_want_spy_user("User3","spy");
 		$get_want_to_spy = $roominfo->get_want_spy_user();
 		$this->assertSame(count($get_want_to_spy),1);
 		$this->assertSame($get_want_to_spy[0],"User3");
 
-		$roominfo->set_want_spy_user("User1");
+		$roominfo->set_want_spy_user("User1","spy");
 		$get_want_to_spy = $roominfo->get_want_spy_user();
 		$this->assertSame(count($get_want_to_spy),2);
 		$this->assertSame($get_want_to_spy[1],"User1");
@@ -287,11 +287,58 @@ class RoomInfoTest extends PHPUnit_Framework_TestCase
 	 */
 	public function test_reflesh_want_spy_user($roominfo) {
 		$roominfo->debug_reset_want_spy_user();
-		$roominfo->set_want_spy_user("User1");
+		$roominfo->set_want_spy_user("User1","spy");
 		$roominfo->logout_user("User1","pass");
 		$raw_user = $roominfo->get_raw_roomdata();
 		$this->assertSame(count($roominfo->get_want_spy_user()),0);
 		$roominfo->add_user("User1","pass");
+		return $roominfo;
+	}
+
+	/**
+	 * @depends test_reflesh_want_spy_user
+	 */
+	public function test_set_want_double_spy_user($roominfo) {
+		$roominfo->debug_reset_want_spy_user();
+		$roominfo->set_want_spy_user("User1","double_spy");
+		for ($i = 0;$i < 100; $i++){
+			$roominfo->set_spylist(true);
+			$spy_user = $roominfo->get_spylist();
+			$this->assertSame($spy_user[2],"User1");
+		}
+	}
+
+	/**
+	 * @depends test_reflesh_want_spy_user
+	 */
+	public function test_set_spy_member_by_spy_and_registance($roominfo) {
+		$roominfo->debug_reset_want_spy_user();
+		$roominfo->set_want_spy_user("User1","spy");
+		$roominfo->set_want_spy_user("User2","resistance");
+		$roominfo->set_want_spy_user("User3","resistance");
+
+		for ($i = 0;$i < 100;$i++){
+			$roominfo->set_spylist();
+			$this->assertSame(count($roominfo->get_spylist()),2);
+			$this->assertTrue($roominfo->is_spy("User1"));
+		}
+		return $roominfo;
+	}
+
+	/**
+	 * @depends test_set_spy_member_by_spy_and_registance
+	 */
+	
+	public function test_set_spy_member_by_spy_and_not($roominfo) {
+		$roominfo->debug_reset_want_spy_user();
+		$roominfo->set_want_spy_user("User1","not");
+		$roominfo->set_want_spy_user("User2","not");
+		$roominfo->set_want_spy_user("User3","resistance");
+		for ($i = 0;$i < 100;$i++) {
+			$roominfo->set_spylist();
+			$this->assertTrue($roominfo->is_spy("User1"));
+			$this->assertTrue($roominfo->is_spy("User2"));
+		}
 	}
 
 	/**
