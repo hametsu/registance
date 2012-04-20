@@ -300,11 +300,13 @@ class RoomInfoTest extends PHPUnit_Framework_TestCase
 	 */
 	public function test_set_want_double_spy_user($roominfo) {
 		$roominfo->debug_reset_want_spy_user();
+		$roominfo->set_want_spy_user("User2","resistance");
+		$roominfo->set_want_spy_user("User3","resistance");
 		$roominfo->set_want_spy_user("User1","double_spy");
 		for ($i = 0;$i < 100; $i++){
 			$roominfo->set_spylist(true);
 			$spy_user = $roominfo->get_spylist();
-			$this->assertSame($spy_user[2],"User1");
+			$this->assertSame($spy_user[1],"User1");
 		}
 	}
 

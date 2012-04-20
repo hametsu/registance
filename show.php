@@ -138,6 +138,7 @@ if ($roominfo->get_states() === "waiting"){
 	switch($_POST['command']){
 	case "vote_start":
 		$roominfo->set_vote_start($_SESSION["name" . $roominfo->get_filename()]);
+		$roominfo->add_log("system","message","red","【" . $_SESSION["name" . $roominfo->get_filename()] . "】さんは、開始準備が出来たようです。");
 		$roominfo->write_room_data();
 		break;
 	case "logout":
@@ -832,7 +833,8 @@ if(!isset($room_data[16])){
 			switch($roominfo->get_states()){
 			case "waiting":
 			case "processing":
-				if ($log_array[0] === $_SESSION["name" . $roominfo->get_filename()]) {
+				if ($log_array[0] === $_SESSION["name" . $roominfo->get_filename()]
+				or $log_array[0] === $roominfo->get_username_to_anonymous($_SESSION["name" . $roominfo->get_filename()])) {
 					if (!$is_filter or ($is_filter and $_GET['dialog'] === "on")){
 						echo "<li class='dialog' style='color:" . $log_array[2] .";border: 2px dashed " . $log_array[2] . "'>" . "<span class='name'>" . $log_array[0] . "</span><p>" . $log_array[3] . "</p></li>" ;
 					}

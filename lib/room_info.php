@@ -354,12 +354,17 @@ class RoomInfo extends Singleton {
 			or $test){
 				//誰かが二重スパイを希望しているか？
 				$somebody_spy = Array();
-				$somenot_spy = $set_user;
+				$somenot_spy = Array();
 				foreach ($set_user as $user_item) {
+					$is_somebody_spy = false;
 					foreach($this->get_want_double_spy() as $want_item) {
 						if ($user_item === $want_item) {
 							array_push($somebody_spy,$user_item);
+							$is_somebody_spy = true;
 						}
+					}
+					if (!$is_somebody_spy) {
+						array_push($somenot_spy,$user_item);
 					}
 				}
 				shuffle($somebody_spy);
