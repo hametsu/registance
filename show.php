@@ -459,8 +459,12 @@ var preset_title = document.title;
 echo "var file_name =\"" . $room_file . "\";\n";
 echo "var post_data =\"" . $_POST['say'] . "\";\n";
 ?>
-$(function(){
 
+
+$(function(){
+	if (typeof document.say !== "undefined") {
+		document.say.say.focus();
+	}
 		/*
 		 * 文字数をカウントするための文字列群
 	$("textarea#say").keyup(function(){
