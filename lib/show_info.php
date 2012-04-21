@@ -83,7 +83,7 @@ class ShowInfo extends Singleton {
 		echo "
 			<form action='./show.php?file=" . $this->RoomInfo->cgi_file . "' method='POST'>
 			名前：<input type='textarea' name='name'/><br />
-			簡易パスワード:<input type='textarea' name='pass' />
+			簡易パスワード:<input type='password' name='pass' />
 			<select name='want_spy'>
 				<option value='not'>どちらでもいい</option>
 				<option value='resistance'>レジスタンスを希望する(初心者用)</option>
