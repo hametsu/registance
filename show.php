@@ -413,14 +413,19 @@ if(isset($_SESSION[$room_file])){
 		$_SESSION[$room_file] = TRUE;
 		$_SESSION["color$room_file"] = $_POST['color'];
 
-
+		$role_string = "";
+		if ($roominfo->is_leader($user_name)
+			&& $_POST['type'] !== "dialog") {
+			$role_string .= "(リーダー)";
+		}
+		
 		if (     $roominfo->get_states() === "processing"
 			and  $roominfo->is_room_anonymous() !== "false") {
 
 				$user_name = $roominfo->get_username_to_anonymous($user_name);
 			}
-
-		$roominfo->add_log($user_name,$_POST['type'],$_POST['color'],$_POST['say']);
+		
+		$roominfo->add_log($user_name . $role_string,$_POST['type'],$_POST['color'],$_POST['say']);
 		$roominfo->write_room_data();
 	}
 }
