@@ -303,10 +303,12 @@ $last_victory_point = $roominfo->get_victory_point();
 $last_victory_item = $last_victory_point[count($last_victory_point) - 1];
 $check_not_success = $count_not_success;
 
+$auto_spy_win = false;
 if ($in_spy && $last_victory_item === "registance" 
 	and (count($roominfo->get_users()) <= 6
     or $roominfo->get_mission_no() !== 5)) {
 	$check_not_success = $count_not_success + 1;
+	$auto_spy_win = true;
 }
 
 
@@ -337,7 +339,7 @@ if ($roominfo->get_states() === "processing"){
 		if ($failure_no > 5){
 			$roominfo->add_log("system","warning","red","既に信任投票が五回になりました。このメンバーは機能不全に陥っていると見なされ、スパイ側の勝利となります。");
 		}
-		if ($in_spy) {
+		if ($auto_spy_win) {
 			$roominfo->add_log("system","warning","red","失敗が2つの状態で、チームの中にスパイがいたので、自動的に失敗となります。");
 		}
 		$save_data = "やりましたね！無事、レジスタンスを妨害し、【スパイ側の勝利】です。";
