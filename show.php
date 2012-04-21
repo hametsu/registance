@@ -292,10 +292,25 @@ $result = $roominfo->get_victory_point_count_array();
 $count_success = $result['registance'];
 $count_not_success = $result["spy"];
 
+$in_spy = false;
+foreach($pre_team as $team_check) {
+	if ($roominfo->is_spy($team_check)) {
+		$in_spy = true;
+	}
+}
+
+$last_victory_point = $roominfo->get_victory_point();
+$last_victory_item = $last_victory_point[count($last_victory_point) - 1];
+
+if ($in_spy && $last_victory_item === "registance") {
+	$check_not_success = $count_not_success + 1;
+}
+
+
 //もし、ゲームの終了条件なら、ゲームを終了する
 if ($roominfo->get_states() === "processing"){
 	$failure_no = $roominfo->get_failure_team_no();
-	if ($count_success >= 3 || $count_not_success >= 3 || $failure_no > 5){
+	if ($count_success >= 3 || $check_not_success >= 3 || $failure_no > 5){
 		$in_double_spy = false;
 		if ($roominfo->is_room_double_spy()) {
 			foreach($pre_team as $team_check) {
@@ -307,17 +322,20 @@ if ($roominfo->get_states() === "processing"){
 		rewrite_room_dat("end",$room_file);
 		$roominfo->set_states("end");
 		$roominfo->set_scene("end");
-	if ($in_double_spy && ($count_success + $count_not_success ) === 5) {
+	if ($in_double_spy && ($count_success + $check_not_success ) === 5) {
 		$roominfo->set_game_victory("double_spy");
 		$save_data = "お見事！スパイもレジスタンスも出し抜き、貴方自身の勝利を手に入れました！【二重スパイ】の勝利です。";
 	} elseif ($count_success >= 3){
 		$roominfo->set_game_victory("registance");
 		$save_data = "やりましたね！スパイの妨害を勝ち抜き、【レジスタンス側の勝利】です。";
 
-	} elseif ($count_not_success >= 3 || $failure_no > 5){
+	} elseif ($check_not_success >= 3 || $failure_no > 5){
 		$roominfo->set_game_victory("spy");
 		if ($failure_no > 5){
 			$roominfo->add_log("system","warning","red","既に信任投票が五回になりました。このメンバーは機能不全に陥っていると見なされ、スパイ側の勝利となります。");
+		}
+		if ($in_spy) {
+			$roominfo->add_log("system","warning","red","失敗が2つの状態で、チームの中にスパイがいたので、自動的に失敗となります。");
 		}
 		$save_data = "やりましたね！無事、レジスタンスを妨害し、【スパイ側の勝利】です。";
 	}
