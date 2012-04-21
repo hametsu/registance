@@ -78,7 +78,7 @@ $(function(){
 <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://www45045u.sakura.ne.jp/registance/" data-via="ResistanceChat" data-lang="ja">ツイート</a>
 <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
 	<h2>概要</h2>
-	<p>　一言で述べるならば、<a href="http://www.wolfg.x0.com/">汝は人狼なりや？</a>みたいなシステムです。しかし、人狼のシステムを改良しており、下のような違いがあります。</p>
+	<p>　一言で述べるならば、<a href="http://www.wolfg.x0.com/">汝は人狼なりや？</a>みたいなシステムです。しかし、人狼のシステムと類似するところがあり、下のような違いがあります。</p>
 	<ul>
 	    <li>脱落者が出ない</li>
 	    <li>司会者がいない</li>
@@ -117,7 +117,6 @@ $(function(){
 		<input name="anonymous" type="checkbox" value="check">この部屋は、ゲーム中は「入室時の名前」を隠してプレイが始まる。
 		<br /><input name="blind_spy" type="checkbox" value="check">この部屋は、スパイは仲間がわからないまま進行する。
 		<br /><input name="double_spy" type="checkbox" value="check">7人以上なら、二重スパイが登場する(Mission5で、チームに選ばれて承認されたら、二重スパイの勝利)
-		<br />※二重スパイルールは、覆面ルール（入室時の名前～）と一緒に使うと、バグってしまうかもしれません（未検証）
 	</p>
 	<input id="makeroom" type="submit" value="作成">
 	</form>
