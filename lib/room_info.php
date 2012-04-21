@@ -342,6 +342,7 @@ class RoomInfo extends Singleton {
 			$get_user = $this->get_want_spy_user();
 		}
 		//スパイの選択を始める
+		shuffle($set_user);
 		shuffle($get_user);
 		while (count($set_user) < $count_spy){
 			$push_user = array_shift($get_user);
