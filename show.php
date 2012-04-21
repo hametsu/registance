@@ -34,8 +34,8 @@ if (!file_exists("data/$room_file") && !isset($_GET['file'])){
 //初期化
 $roominfo = RoomInfo::getInstance();
 $roominfo->loadfile("$room_file",FALSE);
-
 session_start();
+
 //---------------------------------
 //参加者が現れたときの処理
 //
