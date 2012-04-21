@@ -302,7 +302,9 @@ foreach($pre_team as $team_check) {
 $last_victory_point = $roominfo->get_victory_point();
 $last_victory_item = $last_victory_point[count($last_victory_point) - 1];
 
-if ($in_spy && $last_victory_item === "registance") {
+if ($in_spy && $last_victory_item === "registance" 
+	and (count($roominfo->get_users()) <= 6
+    or $roominfo->get_mission_no() !== 5)) {
 	$check_not_success = $count_not_success + 1;
 }
 
